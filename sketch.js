@@ -11,18 +11,28 @@ let player;
 let gridManager;
 
 let spriteSheet;
+let playerSprites;
+let bulletSprite;
 
 
 async function setup() {
-  spriteSheet = await loadImage('assets/sprite.png');
-  createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-  noSmooth();
+    spriteSheet = await loadImage('assets/sprite.png');
+    createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    noSmooth();
 
-  mushrooms = [];
-  centipedeSegments = [];
-  bullets = [];
-  
-  gameState = 'START';
+    mushrooms = [];
+    centipedeSegments = [];
+    bullets = [];
+    
+    gameState = 'START';
+
+
+    playerSprites = {
+        idle: spriteSheet.get(PLAYER_SPRITES.idle.x, PLAYER_SPRITES.idle.y, PLAYER_SPRITES.idle.w, PLAYER_SPRITES.idle.h),
+        shooting: spriteSheet.get(PLAYER_SPRITES.shooting.x, PLAYER_SPRITES.shooting.y, PLAYER_SPRITES.shooting.w, PLAYER_SPRITES.shooting.h)
+    };
+
+    bulletSprite = spriteSheet.get(PLAYER_SPRITES.bullet.x, PLAYER_SPRITES.bullet.y, PLAYER_SPRITES.bullet.w, PLAYER_SPRITES.bullet.h);
 }
 
 function draw() {
@@ -36,12 +46,25 @@ function draw() {
       text("CENTIPEDE\nPress ENTER to start", width / 2, height / 2);
       break;
     case 'INGAME':
-        if (keyIsDown(ENTER)) {
-            //player.shoot();      //hasta que angel lo tenga
+      if (keyIsDown(' ')) {
+        player.shoot(bulletSprite);
         }  
-
+        player.update();
+        player.render();
+        
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.move();
+            b.render();
+            
+            if (!b.isActive) {
+            bullets.splice(i, 1);
+            }
+        }
+        
         drawUI();
-      break;
+      break;    
+    
     case 'ENDGAME':
       text("CENTIPEDE\nPress ENTER to start", width / 2, height / 2);
       break;
@@ -73,16 +96,17 @@ function drawRetroScore(scoreValue, yPosition) {
 
 
 function startNewGame() {
-  score=0;
-  lives=3;
-  currentLevel=1;
+    score=0;
+    lives=3;
+    currentLevel=1;
 
-  gameState= 'INGAME';
+    gameState= 'INGAME';
 
-  //player = new Player();      //hasta que angel lo tenga
-  bullets = [];
+    player = new Player(CANVAS_WIDTH / 2, CANVAS_HEIGHT - TILE_SIZE * 2, playerSprites);
+    bullets = [];
 
 }
+
 function drawUI() {
   fill(255);
   noStroke();
