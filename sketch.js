@@ -14,6 +14,22 @@ let spriteSheet;
 let playerSprites;
 let bulletSprite;
 
+function updateLevelSprites() {
+  let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
+  let p = PALETTE_OFFSETS[paletteIndex];
+
+  playerSprites = {
+    idle: spriteSheet.get(p.x + PLAYER_SPRITES.idle.x, p.y + PLAYER_SPRITES.idle.y, PLAYER_SPRITES.idle.w, PLAYER_SPRITES.idle.h),
+    shooting: spriteSheet.get(p.x + PLAYER_SPRITES.shooting.x, p.y + PLAYER_SPRITES.shooting.y, PLAYER_SPRITES.shooting.w, PLAYER_SPRITES.shooting.h)
+  };
+
+  bulletSprite = spriteSheet.get(p.x + PLAYER_SPRITES.bullet.x, p.y + PLAYER_SPRITES.bullet.y, PLAYER_SPRITES.bullet.w, PLAYER_SPRITES.bullet.h);
+
+  if (player) {
+    player.sprites = playerSprites;
+  }
+}
+
 
 async function setup() {
     spriteSheet = await loadImage('assets/sprite.png');
@@ -26,13 +42,9 @@ async function setup() {
     
     gameState = 'START';
 
+    currentLevel = 1;
+    updateLevelSprites();
 
-    playerSprites = {
-        idle: spriteSheet.get(PLAYER_SPRITES.idle.x, PLAYER_SPRITES.idle.y, PLAYER_SPRITES.idle.w, PLAYER_SPRITES.idle.h),
-        shooting: spriteSheet.get(PLAYER_SPRITES.shooting.x, PLAYER_SPRITES.shooting.y, PLAYER_SPRITES.shooting.w, PLAYER_SPRITES.shooting.h)
-    };
-
-    bulletSprite = spriteSheet.get(PLAYER_SPRITES.bullet.x, PLAYER_SPRITES.bullet.y, PLAYER_SPRITES.bullet.w, PLAYER_SPRITES.bullet.h);
 }
 
 function draw() {
@@ -45,6 +57,7 @@ function draw() {
       textAlign(CENTER, CENTER);
       text("CENTIPEDE\nPress ENTER to start", width / 2, height / 2);
       break;
+
     case 'INGAME':
       if (keyIsDown(' ')) {
         player.shoot(bulletSprite);
@@ -61,9 +74,8 @@ function draw() {
             bullets.splice(i, 1);
             }
         }
-        
         drawUI();
-      break;    
+        break;    
     
     case 'ENDGAME':
       text("CENTIPEDE\nPress ENTER to start", width / 2, height / 2);
@@ -82,8 +94,10 @@ function drawRetroScore(scoreValue, yPosition) {
   for (let i = 0; i < scoreStr.length; i++) {
    
     let d = int(scoreStr[i]);
-    let sx = d * 9;
-    let sy = 108;
+    let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
+    let p = PALETTE_OFFSETS[paletteIndex];
+    let sx = p.x + d * 9;
+    let sy = p.y + 108;
     let dx = startX + i * renderSize;
     let dy = yPosition;
 
@@ -93,7 +107,11 @@ function drawRetroScore(scoreValue, yPosition) {
   }
 }
 
-
+function levelUp() {
+  currentLevel++;
+  bullets = [];
+  updateLevelSprites();
+}
 
 function startNewGame() {
     score=0;
@@ -112,20 +130,19 @@ function drawUI() {
   noStroke();
   textSize(18);
   textAlign(CENTER, TOP);
+
+   // 1. Puntaje en el centro superior con tu función retro
   drawRetroScore(score, 10);
-
-  fill(0, 255, 0);
-  let startX = 20;
-  let lifeY = 18;
+  // 2. Iconos de vidas en la esquina superior izquierda
+  let startX = 16;
+  let lifeY = 10;
+  let iconWidth = 12;
+  let iconHeight = 16;
   let spacing = 16;
-
   for (let i = 0; i < lives; i++) {
     let currentX = startX + i * spacing;
-    triangle(
-      currentX, lifeY - 6,
-      currentX - 5, lifeY + 6,
-      currentX + 5, lifeY + 6
-    );
+    // Dibuja el sprite de la nave del jugador:
+    image(playerSprites.idle, currentX, lifeY, iconWidth, iconHeight);
   }
 }
 
@@ -134,5 +151,9 @@ function keyPressed() {
     if (gameState === 'START' || gameState === 'ENDGAME') {
       startNewGame();
     }
+  }
+
+  if ((key === 'n' || key === 'N') && gameState === 'INGAME') {
+    levelUp();
   }
 }

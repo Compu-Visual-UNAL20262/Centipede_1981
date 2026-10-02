@@ -2,7 +2,7 @@
 // ─── Shared Constants (Engine Base) ──────────────────────────────────
 const TILE_SIZE = 16;
 const COLS = 30;
-const ROWS = 40;
+const ROWS = 32;
 const CANVAS_WIDTH = COLS * TILE_SIZE;
 const CANVAS_HEIGHT = ROWS * TILE_SIZE;
 
@@ -26,3 +26,20 @@ const PLAYER_SPRITES = {
   shooting: { x: 21, y: 9,  w: 7, h: 8  },
   bullet:   { x: 24, y: 2,  w: 1, h: 6  },
 };
+
+const PALETTE_OFFSETS = [
+  { x: 0,   y: 0   }, // Nivel 1
+  { x: 170, y: 0   }, // Nivel 2
+  { x: 340, y: 0   }, // Nivel 3
+  { x: 510, y: 0   }, // Nivel 4
+  { x: 0,   y: 117 }, // Nivel 5
+  { x: 170, y: 117 }, // Nivel 6
+  { x: 340, y: 117 }, // Nivel 7
+  { x: 510, y: 117 }, // Nivel 8
+  { x: 0,   y: 234 }, // Nivel 9
+  { x: 170, y: 234 }, // Nivel 10
+  { x: 340, y: 234 }, // Nivel 11
+  { x: 510, y: 234 }, // Nivel 12
+  { x: 170,   y: 351 }, // Nivel 13
+  { x: 340, y: 351 }  // Nivel 14
+];
