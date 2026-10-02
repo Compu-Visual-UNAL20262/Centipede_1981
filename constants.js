@@ -43,3 +43,13 @@ const PALETTE_OFFSETS = [
   { x: 170,   y: 351 }, // Nivel 13
   { x: 340, y: 351 }  // Nivel 14
 ];
+
+// ─── Dynamic Burst & Cooldown Settings ──────────────────────────────
+const NORMAL_SHOOT_COOLDOWN = 24;
+const RAPID_SHOOT_COOLDOWN = 4;
+const BURST_BULLET_COUNT = 3;
+const MIN_POST_BURST_COOLDOWN = 6;
+const MAX_POST_BURST_COOLDOWN = 18;
+const MIN_SCAN_DISTANCE = 0;
+const MAX_SCAN_DISTANCE = CANVAS_HEIGHT;
+

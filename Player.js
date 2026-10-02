@@ -15,6 +15,7 @@ class Player {
     this.height = PLAYER_SPRITES.idle.h * SPRITE_SCALE;
     this.speed = PLAYER_SPEED;
     this.shootCooldown = 0;
+    this.burstBulletsRemaining = 0;
     this.sprites = sprites;
   }
 
@@ -47,7 +48,75 @@ class Player {
   }
 
   /**
+   * Scans global mushrooms and centipedeSegments arrays to find the closest entity
+   * located directly above the player in the same column (X range).
+   * @returns {number} The vertical distance (Y) to the closest entity above, or Infinity if none.
+   */
+  getClosestEntityDistanceY() {
+    let minDistance = Infinity;
+
+    const scanEntities = (entityList) => {
+      if (!entityList || !Array.isArray(entityList)) return;
+
+      for (let i = 0; i < entityList.length; i++) {
+        const entity = entityList[i];
+        if (!entity) continue;
+        if (entity.isActive === false || entity.isDestroyed === true || entity.alive === false) continue;
+
+        const entX = typeof entity.getX === 'function' ? entity.getX() : entity.x;
+        const entY = typeof entity.getY === 'function' ? entity.getY() : entity.y;
+        if (typeof entX !== 'number' || typeof entY !== 'number') continue;
+
+        const entWidth = typeof entity.getWidth === 'function' ? entity.getWidth() : (entity.width || entity.w || TILE_SIZE);
+
+        const inSameColumn = (entX < this.x + this.width) && (entX + entWidth > this.x);
+        const isAbove = entY < this.y;
+
+        if (inSameColumn && isAbove) {
+          const distanceY = this.y - entY;
+          if (distanceY < minDistance) {
+            minDistance = distanceY;
+          }
+        }
+      }
+    };
+
+    if (typeof mushrooms !== 'undefined') {
+      scanEntities(mushrooms);
+    }
+    if (typeof centipedeSegments !== 'undefined') {
+      scanEntities(centipedeSegments);
+    }
+
+    return minDistance;
+  }
+
+  /**
+   * Calculates a dynamic post-burst cooldown proportional to target distance.
+   * Shorter distances return values near MIN_POST_BURST_COOLDOWN,
+   * while longer distances return values near MAX_POST_BURST_COOLDOWN.
+   * @param {number} distance - Vertical distance in pixels to the closest entity above.
+   * @returns {number} Dynamic cooldown in frames.
+   */
+  calculateDynamicCooldown(distance) {
+    if (!Number.isFinite(distance)) {
+      return MAX_POST_BURST_COOLDOWN;
+    }
+    const clampedDistance = constrain(distance, MIN_SCAN_DISTANCE, MAX_SCAN_DISTANCE);
+    const dynamicCooldown = map(
+      clampedDistance,
+      MIN_SCAN_DISTANCE,
+      MAX_SCAN_DISTANCE,
+      MIN_POST_BURST_COOLDOWN,
+      MAX_POST_BURST_COOLDOWN,
+      true
+    );
+    return Math.round(dynamicCooldown);
+  }
+
+  /**
    * Fires a bullet if the cooldown has expired.
+   * Uses proximity scanning to dynamically adjust cooldowns and fire bursts.
    * Centered horizontally relative to the player's current width.
    * @param {p5.Image} bulletSprite - Pre-extracted sprite image for the bullet.
    */
@@ -58,7 +127,25 @@ class Player {
       const spawnY = this.y;
 
       bullets.push(new Bullet(spawnX, spawnY, bulletSprite));
-      this.shootCooldown = SHOOT_COOLDOWN_FRAMES;
+
+      const closestDistance = this.getClosestEntityDistanceY();
+      const hasTargetAbove = Number.isFinite(closestDistance);
+
+      if (this.burstBulletsRemaining > 0) {
+        this.burstBulletsRemaining--;
+        if (this.burstBulletsRemaining === 0) {
+          this.shootCooldown = this.calculateDynamicCooldown(closestDistance);
+        } else {
+          this.shootCooldown = RAPID_SHOOT_COOLDOWN;
+        }
+      } else if (hasTargetAbove) {
+        this.burstBulletsRemaining = BURST_BULLET_COUNT;
+        this.burstBulletsRemaining--;
+        this.shootCooldown = RAPID_SHOOT_COOLDOWN;
+      } else {
+        this.burstBulletsRemaining = 0;
+        this.shootCooldown = NORMAL_SHOOT_COOLDOWN;
+      }
     }
   }
 
@@ -134,4 +221,13 @@ class Player {
   getShootCooldown() {
     return this.shootCooldown;
   }
+
+  /**
+   * Returns the count of remaining burst bullets.
+   * @returns {number}
+   */
+  getBurstBulletsRemaining() {
+    return this.burstBulletsRemaining;
+  }
 }
+
