@@ -16,3 +16,10 @@ const COLLISION_RADIUS = 8;
 const PLAYER_SPEED = 4;
 const SHOOT_COOLDOWN_FRAMES = 10;
 const BULLET_SPEED = -8;
+
+// ─── Player Sprite Coordinates (source rectangles in sprite sheet) ───
+const PLAYER_SPRITES = {
+  idle:     { x: 4,  y: 7,  w: 7, h: 10 },
+  shooting: { x: 21, y: 9,  w: 7, h: 8  },
+  bullet:   { x: 24, y: 2,  w: 1, h: 6  },
+};
