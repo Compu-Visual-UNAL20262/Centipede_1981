@@ -3,13 +3,15 @@
 class Bullet {
   /**
    * Creates a new bullet projectile that travels upward.
-   * @param {number} x - Initial horizontal position (center).
-   * @param {number} y - Initial vertical position (top of player).
+   * @param {number} x - Initial horizontal position.
+   * @param {number} y - Initial vertical position.
    * @param {p5.Image} sprite - Pre-extracted sprite image for the bullet.
    */
   constructor(x, y, sprite) {
     this.x = x;
     this.y = y;
+    this.width = PLAYER_SPRITES.bullet.w * SPRITE_SCALE;
+    this.height = PLAYER_SPRITES.bullet.h * SPRITE_SCALE;
     this.speed = BULLET_SPEED;
     this.isActive = true;
     this.sprite = sprite;
@@ -17,18 +19,18 @@ class Bullet {
 
   /**
    * Advances the bullet upward by its speed each frame.
-   * Deactivates when it exits the top edge of the canvas.
+   * Deactivates when it completely exits the top edge of the canvas.
    */
   move() {
     this.y += this.speed;
 
-    if (this.y < 0) {
+    if (this.y + this.height < 0) {
       this.isActive = false;
     }
   }
 
   /**
-   * Draws the bullet sprite at its current position.
+   * Draws the bullet sprite at its current position using its scaled dimensions.
    * Uses Math.floor() on coordinates to avoid sub-pixel texture bleeding.
    */
   render() {
@@ -38,8 +40,8 @@ class Bullet {
       this.sprite,
       Math.floor(this.x),
       Math.floor(this.y),
-      TILE_SIZE,
-      TILE_SIZE
+      this.width,
+      this.height
     );
   }
 
@@ -72,5 +74,21 @@ class Bullet {
    */
   getY() {
     return this.y;
+  }
+
+  /**
+   * Returns the rendered width of the bullet.
+   * @returns {number}
+   */
+  getWidth() {
+    return this.width;
+  }
+
+  /**
+   * Returns the rendered height of the bullet.
+   * @returns {number}
+   */
+  getHeight() {
+    return this.height;
   }
 }

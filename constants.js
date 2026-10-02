@@ -12,6 +12,9 @@ const PLAYER_AREA_Y = ROWS * 0.75 * TILE_SIZE;
 // General collision radius for p5.dist() checks
 const COLLISION_RADIUS = 8;
 
+// Global visual scale factor for sprite sheet entities (maps native pixel art to canvas)
+const SPRITE_SCALE = 2;
+
 // ─── Player & Bullet Settings ────────────────────────────────────────
 const PLAYER_SPEED = 4;
 const SHOOT_COOLDOWN_FRAMES = 10;
