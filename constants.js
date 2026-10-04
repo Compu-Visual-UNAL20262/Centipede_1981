@@ -27,6 +27,13 @@ const PLAYER_SPRITES = {
   bullet:   { x: 24, y: 2,  w: 1, h: 6  },
 };
 
+const MUSHROOM_SPRITES = {
+  life_4: { x: 68,  y: 81,  w: 8, h: 8 },
+  life_3: { x: 77, y: 81,  w: 8, h: 8 },
+  life_2: { x: 86, y: 81,  w: 8, h: 8 },
+  destroyed:{ x: 95, y: 81,  w: 8, h: 8 },
+};
+
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
   { x: 170, y: 0   }, // Nivel 2
