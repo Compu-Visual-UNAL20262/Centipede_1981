@@ -8,7 +8,7 @@ class Mushroom {
 
     this.health = 4;
 
-    this.sprite = MUSHROOM_SPRITES;
+    this.sprite = mushroomSprites;
   }
 
   render() {
@@ -17,21 +17,21 @@ class Mushroom {
 
     // The mushroom changes appearance according to its health.
     if (this.health === 4) {
-      currentSprite = this.sprite.life_4;
+      currentSprite = mushroomSprites.life_4;
     } else if (this.health === 3) {
-      currentSprite = this.sprite.life_3;
+      currentSprite = mushroomSprites.life_3;
     } else if (this.health === 2) {
-      currentSprite = this.sprite.life_2;
+      currentSprite = mushroomSprites.life_2;
     } else if (this.health === 1) {
-      currentSprite = this.sprite.destroyed;
+      currentSprite = mushroomSprites.life_1;
     }
 
     image(
       currentSprite,
       Math.floor(this.x),
       Math.floor(this.y),
-      currentSprite.w,
-      currentSprite.h
+      TILE_SIZE,
+      TILE_SIZE
     );
   }
 

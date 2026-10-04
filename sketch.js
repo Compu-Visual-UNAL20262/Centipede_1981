@@ -13,10 +13,18 @@ let gridManager;
 let spriteSheet;
 let playerSprites;
 let bulletSprite;
+let mushroomSprites;
 
 function updateLevelSprites() {
   let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
   let p = PALETTE_OFFSETS[paletteIndex];
+
+    mushroomSprites = {
+    life_4: spriteSheet.get(p.x + MUSHROOM_SPRITES.life_4.x, p.y + MUSHROOM_SPRITES.life_4.y, MUSHROOM_SPRITES.life_4.w, MUSHROOM_SPRITES.life_4.h),
+    life_3: spriteSheet.get(p.x + MUSHROOM_SPRITES.life_3.x, p.y + MUSHROOM_SPRITES.life_3.y, MUSHROOM_SPRITES.life_3.w, MUSHROOM_SPRITES.life_3.h),
+    life_2: spriteSheet.get(p.x + MUSHROOM_SPRITES.life_2.x, p.y + MUSHROOM_SPRITES.life_2.y, MUSHROOM_SPRITES.life_2.w, MUSHROOM_SPRITES.life_2.h),
+    life_1: spriteSheet.get(p.x + MUSHROOM_SPRITES.destroyed.x, p.y + MUSHROOM_SPRITES.destroyed.y, MUSHROOM_SPRITES.destroyed.w, MUSHROOM_SPRITES.destroyed.h)
+  };
 
   playerSprites = {
     idle: spriteSheet.get(p.x + PLAYER_SPRITES.idle.x, p.y + PLAYER_SPRITES.idle.y, PLAYER_SPRITES.idle.w, PLAYER_SPRITES.idle.h),
@@ -45,6 +53,8 @@ async function setup() {
     currentLevel = 1;
     updateLevelSprites();
 
+     gridManager = new GridManager();
+
 }
 
 function draw() {
@@ -59,6 +69,11 @@ function draw() {
       break;
 
     case 'INGAME':
+
+      for (let m of mushrooms) {
+        m.render();
+      }
+
       if (keyIsDown(' ')) {
         player.shoot(bulletSprite);
         }  
@@ -74,6 +89,9 @@ function draw() {
             bullets.splice(i, 1);
             }
         }
+
+        checkCollisions();
+
         drawUI();
         break;    
     
@@ -113,6 +131,30 @@ function levelUp() {
   updateLevelSprites();
 }
 
+function checkCollisions() {
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    let b = bullets[i];
+    for (let j = mushrooms.length - 1; j >= 0; j--) {
+      let m = mushrooms[j];
+      let mCenterX = m.x + TILE_SIZE / 2;
+      let mCenterY = m.y + TILE_SIZE / 2;
+
+      
+      if (dist(b.x, b.y, mCenterX, mCenterY) < COLLISION_RADIUS) {
+        b.isActive = false;
+        bullets.splice(i, 1);
+
+        
+        if (m.takeDamage()) {
+          mushrooms.splice(j, 1);
+          score += 1; 
+        }
+        break; 
+      }
+    }
+  }
+}
+
 function startNewGame() {
     score=0;
     lives=3;
@@ -123,6 +165,7 @@ function startNewGame() {
     player = new Player(CANVAS_WIDTH / 2, CANVAS_HEIGHT - TILE_SIZE * 2, playerSprites);
     bullets = [];
 
+    gridManager.generateLevel();
 }
 
 function drawUI() {
@@ -131,9 +174,9 @@ function drawUI() {
   textSize(18);
   textAlign(CENTER, TOP);
 
-   // 1. Puntaje en el centro superior con tu función retro
+   
   drawRetroScore(score, 10);
-  // 2. Iconos de vidas en la esquina superior izquierda
+  
   let startX = 16;
   let lifeY = 10;
   let iconWidth = 12;
@@ -141,7 +184,7 @@ function drawUI() {
   let spacing = 16;
   for (let i = 0; i < lives; i++) {
     let currentX = startX + i * spacing;
-    // Dibuja el sprite de la nave del jugador:
+    
     image(playerSprites.idle, currentX, lifeY, iconWidth, iconHeight);
   }
 }

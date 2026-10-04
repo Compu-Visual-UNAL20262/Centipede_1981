@@ -7,9 +7,9 @@ class GridManager {
   generateLevel() {
     mushrooms.length = 0;
 
-    for (let row = 0; row < this.playerAreaStartRow; row++) {
+    for (let row = 3; row < this.playerAreaStartRow; row++) {
       for (let col = 0; col < COLS; col++) {
-        if (random() < 0.20) {
+        if (random() < 0.10) {
           if (!this.hasMushroomAt(col, row)) {
             mushrooms.push(
               new Mushroom(col, row)
