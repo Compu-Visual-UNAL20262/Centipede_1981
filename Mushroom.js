@@ -23,7 +23,7 @@ class Mushroom {
     } else if (this.health === 2) {
       currentSprite = this.sprite.life_2;
     } else if (this.health === 1) {
-      currentSprite = this.sprite.life_1;
+      currentSprite = this.sprite.destroyed;
     }
 
     image(
