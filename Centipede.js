@@ -71,7 +71,7 @@ class Centipede {
   }
 
   increaseSpeed(amount = 0.01) {
-    this.moveDelay = max(3, this.moveDelay - amount);
+    this.moveDelay = max(MIN_CENTIPEDE_SPEED, this.moveDelay - amount);
   }
 
   hitSegment(index) {

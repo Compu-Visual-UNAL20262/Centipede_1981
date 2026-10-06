@@ -217,10 +217,10 @@ function startNewGame() {
 
     let tmp;
     tmp = [];
-    for (let i = 0; i < 12; i++) {
-      tmp.push(new CentipedeSegment(5 + i, 2, -1, i === 0, centipedeSprites));
+    for (let i = 0; i < CENTIPEDE_LENGTH; i++) {
+      tmp.push(new CentipedeSegment(INITIAL_X_CENTIPEDE + i, INITIAL_Y_CENTIPEDE, -1, i === 0, centipedeSprites));
     }
-    centipedes.push(new Centipede(tmp, 3));
+    centipedes.push(new Centipede(tmp));
 
 
 }
