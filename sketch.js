@@ -4,7 +4,7 @@ let gameState;
 let currentLevel;
 
 let mushrooms;
-let centipedeSegments;
+let centipedes;
 let bullets;
 
 let player;
@@ -14,6 +14,7 @@ let spriteSheet;
 let playerSprites;
 let bulletSprite;
 let mushroomSprites;
+let centipedeSprites;
 
 function updateLevelSprites() {
   let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
@@ -34,7 +35,8 @@ function updateLevelSprites() {
   bulletSprite = spriteSheet.get(p.x + PLAYER_SPRITES.bullet.x, p.y + PLAYER_SPRITES.bullet.y, PLAYER_SPRITES.bullet.w, PLAYER_SPRITES.bullet.h);
 
   centipedeSprites = {
-    centipedeHead: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeHead.x, p.y + CENTIPEDE_SPRITES.centipedeHead.y, CENTIPEDE_SPRITES.centipedeHead.w, CENTIPEDE_SPRITES.centipedeHead.h)
+    centipedeHead: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeHead.x, p.y + CENTIPEDE_SPRITES.centipedeHead.y, CENTIPEDE_SPRITES.centipedeHead.w, CENTIPEDE_SPRITES.centipedeHead.h),
+    centipedeBody: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBody.x, p.y + CENTIPEDE_SPRITES.centipedeBody.y, CENTIPEDE_SPRITES.centipedeBody.w, CENTIPEDE_SPRITES.centipedeBody.h),
   }
 
   if (player) {
@@ -51,6 +53,7 @@ async function setup() {
     mushrooms = [];
     centipedeSegments = [];
     bullets = [];
+    centipedes = [];
     
     gameState = 'START';
 
@@ -78,10 +81,9 @@ function draw() {
         m.render();
       }
 
-      for (let c of centipedeSegments) {
-        c.move();
+      for (let c of centipedes) {
+        c.update();
         c.render();
-
       }
 
       if (keyIsDown(' ')) {
@@ -176,7 +178,14 @@ function startNewGame() {
     bullets = [];
 
     gridManager.generateLevel();
-    centipedeSegments.push(new CentipedeSegment(5, 2, 1, true, centipedeSprites));
+
+    let tmp;
+    tmp = [];
+    for (let i = 0; i < 12; i++) {
+      tmp.push(new CentipedeSegment(5 + i, 2, -1, i === 0, centipedeSprites));
+    }
+    centipedes.push(new Centipede(tmp));
+
 
 }
 

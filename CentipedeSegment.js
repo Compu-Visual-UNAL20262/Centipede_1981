@@ -10,6 +10,8 @@ class CentipedeSegment {
       this.yDir = 1;
       this.isHead = isHead;
       this.sprites = sprites;
+
+      
   }
 
   render() {
@@ -25,24 +27,20 @@ class CentipedeSegment {
     );
   }
 
-  move(){
-    let nextCol = this.col + this.xDir;
-    let outOfBoundX = nextCol < 0 || nextCol >= COLS;
-    let outOfBoundY = this.row + this.yDir >= gridManager.playerAreaStartRow || this.row + this.yDir <= 0;
+  moveDownRow(){
+    this.xDir *= -1;
+    this.row += this.yDir;
+  }
 
-    if ( outOfBoundX || gridManager.hasMushroomAt(nextCol, this.row)) {
-      this.xDir *= -1;
-      this.row += this.yDir;
-      console.log(this.yDir)
-    }
-    if (outOfBoundY) {
-      this.yDir *= -1;
-    }
+  setPosition(col, row) {
+    this.col = col;
+    this.row = row;
 
-    this.col += this.xDir;
+    this.x = col * TILE_SIZE;
+    this.y = row * TILE_SIZE;
+  }
 
-
-    this.x = this.col * TILE_SIZE;
-    this.y = this.row * TILE_SIZE;
+  becomeHead() {
+    this.isHead = true;
   }
 }
