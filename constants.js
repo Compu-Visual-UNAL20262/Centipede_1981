@@ -34,6 +34,10 @@ const MUSHROOM_SPRITES = {
   destroyed:{ x: 95, y: 81,  w: 8, h: 8 },
 };
 
+const CENTIPEDE_SPRITES = {
+  centipedeHead: { x:4, y: 18, w: 7, h:8},
+}
+
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
   { x: 170, y: 0   }, // Nivel 2

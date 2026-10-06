@@ -33,6 +33,10 @@ function updateLevelSprites() {
 
   bulletSprite = spriteSheet.get(p.x + PLAYER_SPRITES.bullet.x, p.y + PLAYER_SPRITES.bullet.y, PLAYER_SPRITES.bullet.w, PLAYER_SPRITES.bullet.h);
 
+  centipedeSprites = {
+    centipedeHead: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeHead.x, p.y + CENTIPEDE_SPRITES.centipedeHead.y, CENTIPEDE_SPRITES.centipedeHead.w, CENTIPEDE_SPRITES.centipedeHead.h)
+  }
+
   if (player) {
     player.sprites = playerSprites;
   }
@@ -72,6 +76,12 @@ function draw() {
 
       for (let m of mushrooms) {
         m.render();
+      }
+
+      for (let c of centipedeSegments) {
+        c.move();
+        c.render();
+
       }
 
       if (keyIsDown(' ')) {
@@ -166,6 +176,8 @@ function startNewGame() {
     bullets = [];
 
     gridManager.generateLevel();
+    centipedeSegments.push(new CentipedeSegment(5, 2, 1, true, centipedeSprites));
+
 }
 
 function drawUI() {
