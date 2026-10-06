@@ -164,6 +164,42 @@ function checkCollisions() {
         break; 
       }
     }
+
+    for (let c = centipedes.length - 1; c >= 0; c--) {
+      const centipede = centipedes[c];
+
+      for (let s = centipede.segments.length - 1; s >= 0; s--) {
+        const segment = centipede.segments[s];
+
+        if (dist(b.x, b.y, segment.x, segment.y) < COLLISION_RADIUS) {
+          b.isActive = false;
+          score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
+
+          if (segment.isHead) {
+            score += 15; // Tal vez matar una cabeza de bonus :p 
+            mushrooms.push(
+              new Mushroom(segment.col, segment.row)
+            );
+          }
+
+          const newCentipede = centipede.hitSegment(s);
+
+          if (newCentipede !== null) {
+            centipedes.push(newCentipede);
+          }
+
+          if (centipede.isDead()) {
+            centipedes.splice(c, 1);
+          }
+
+          break;
+        }
+      }
+
+      if (!b.isActive) {
+        break;
+      }
+    }
   }
 }
 
@@ -184,7 +220,7 @@ function startNewGame() {
     for (let i = 0; i < 12; i++) {
       tmp.push(new CentipedeSegment(5 + i, 2, -1, i === 0, centipedeSprites));
     }
-    centipedes.push(new Centipede(tmp));
+    centipedes.push(new Centipede(tmp, 3));
 
 
 }

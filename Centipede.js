@@ -29,7 +29,7 @@ class Centipede {
     let nextCol = head.col + head.xDir;
 
     let outOfBoundX = nextCol < 0 || nextCol >= COLS;
-    let outOfBoundY = head.row + head.yDir >= gridManager.playerAreaStartRow || head.row + head.yDir <= 0;
+    let outOfBoundY = head.row + head.yDir >= ROWS || head.row + head.yDir <= 0;
 
 
     const previousPositions = this.segments.map(segment => ({
@@ -70,7 +70,28 @@ class Centipede {
     return this.segments.length === 0;
   }
 
-  increaseSpeed(amount = 0.05) {
-    this.moveDelay = Math.max(2, this.moveDelay - amount);
+  increaseSpeed(amount = 0.01) {
+    this.moveDelay = max(3, this.moveDelay - amount);
+  }
+
+  hitSegment(index) {
+    const newSegments = this.segments.splice(index + 1);
+    this.segments.splice(index, 1);
+
+    if (newSegments.length === 0) {
+      return null;
+    }
+
+    const newHead = newSegments[0];
+    newHead.becomeHead();
+
+    if (this.segments.length > 0) {
+      const oldHead = this.segments[0];
+
+      newHead.xDir = oldHead.xDir;
+      newHead.yDir = oldHead.yDir;
+    }
+
+    return new Centipede(newSegments, this.moveDelay);
   }
 }
