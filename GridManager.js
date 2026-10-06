@@ -2,12 +2,13 @@
 class GridManager {
   constructor() {
     this.playerAreaStartRow = floor(PLAYER_AREA_Y / TILE_SIZE);
+    this.area = ROWS - 2;
   }
 
   generateLevel() {
     mushrooms.length = 0;
 
-    for (let row = 3; row < this.playerAreaStartRow; row++) {
+    for (let row = 3; row < this.area; row++) {
       for (let col = 0; col < COLS; col++) {
         if (random() < 0.05) {
           if (!this.hasMushroomAt(col, row)) {
