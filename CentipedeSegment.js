@@ -10,12 +10,29 @@ class CentipedeSegment {
       this.yDir = 1;
       this.isHead = isHead;
       this.sprites = sprites;
+      this.bodySprites = [
+        this.sprites.centipedeBodyA,
+        this.sprites.centipedeBodyB,
+        this.sprites.centipedeBodyC,
+        this.sprites.centipedeBodyD,
+      ];
 
-      
+      this.bodySpriteIndex = 0;
+      this.bodySprite = this.bodySprites[0];      
+  }
+
+  changeSprite() {
+    this.bodySpriteIndex++;
+
+    if (this.bodySpriteIndex >= this.bodySprites.length) {
+      this.bodySpriteIndex = 0;
+    }
+
+    this.bodySprite = this.bodySprites[this.bodySpriteIndex];
   }
 
   render() {
-    const currentSprite = this.isHead ? this.sprites.centipedeHead : this.sprites.centipedeBody;
+    const currentSprite = this.isHead ? this.sprites.centipedeHead : this.bodySprite;
     const renderWidth = currentSprite.width * SPRITE_SCALE;
     const renderHeight = currentSprite.height * SPRITE_SCALE;
     image(
