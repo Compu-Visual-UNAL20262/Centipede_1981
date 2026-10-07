@@ -4,7 +4,7 @@ let gameState;
 let currentLevel;
 
 let mushrooms;
-let centipedeSegments;
+let centipedes;
 let bullets;
 
 let player;
@@ -14,6 +14,7 @@ let spriteSheet;
 let playerSprites;
 let bulletSprite;
 let mushroomSprites;
+let centipedeSprites;
 
 function updateLevelSprites() {
   let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
@@ -33,6 +34,11 @@ function updateLevelSprites() {
 
   bulletSprite = spriteSheet.get(p.x + PLAYER_SPRITES.bullet.x, p.y + PLAYER_SPRITES.bullet.y, PLAYER_SPRITES.bullet.w, PLAYER_SPRITES.bullet.h);
 
+  centipedeSprites = {
+    centipedeHead: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeHead.x, p.y + CENTIPEDE_SPRITES.centipedeHead.y, CENTIPEDE_SPRITES.centipedeHead.w, CENTIPEDE_SPRITES.centipedeHead.h),
+    centipedeBody: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBody.x, p.y + CENTIPEDE_SPRITES.centipedeBody.y, CENTIPEDE_SPRITES.centipedeBody.w, CENTIPEDE_SPRITES.centipedeBody.h),
+  }
+
   if (player) {
     player.sprites = playerSprites;
   }
@@ -47,6 +53,7 @@ async function setup() {
     mushrooms = [];
     centipedeSegments = [];
     bullets = [];
+    centipedes = [];
     
     gameState = 'START';
 
@@ -72,6 +79,11 @@ function draw() {
 
       for (let m of mushrooms) {
         m.render();
+      }
+
+      for (let c of centipedes) {
+        c.update();
+        c.render();
       }
 
       if (keyIsDown(' ')) {
@@ -152,6 +164,42 @@ function checkCollisions() {
         break; 
       }
     }
+
+    for (let c = centipedes.length - 1; c >= 0; c--) {
+      const centipede = centipedes[c];
+
+      for (let s = centipede.segments.length - 1; s >= 0; s--) {
+        const segment = centipede.segments[s];
+
+        if (dist(b.x, b.y, segment.x, segment.y) < COLLISION_RADIUS) {
+          b.isActive = false;
+          score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
+
+          if (segment.isHead) {
+            score += 15; // Tal vez matar una cabeza de bonus :p 
+            mushrooms.push(
+              new Mushroom(segment.col, segment.row)
+            );
+          }
+
+          const newCentipede = centipede.hitSegment(s);
+
+          if (newCentipede !== null) {
+            centipedes.push(newCentipede);
+          }
+
+          if (centipede.isDead()) {
+            centipedes.splice(c, 1);
+          }
+
+          break;
+        }
+      }
+
+      if (!b.isActive) {
+        break;
+      }
+    }
   }
 }
 
@@ -166,6 +214,15 @@ function startNewGame() {
     bullets = [];
 
     gridManager.generateLevel();
+
+    let tmp;
+    tmp = [];
+    for (let i = 0; i < CENTIPEDE_LENGTH; i++) {
+      tmp.push(new CentipedeSegment(INITIAL_X_CENTIPEDE + i, INITIAL_Y_CENTIPEDE, -1, i === 0, centipedeSprites));
+    }
+    centipedes.push(new Centipede(tmp));
+
+
 }
 
 function drawUI() {

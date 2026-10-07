@@ -1,1 +1,46 @@
 // CentipedeSegment.js
+class CentipedeSegment {
+    constructor(col, row, xDir, isHead, sprites) {
+      this.col = col;
+      this.row = row;
+      this.x = col * TILE_SIZE;
+      this.y = row * TILE_SIZE;
+
+      this.xDir = xDir;
+      this.yDir = 1;
+      this.isHead = isHead;
+      this.sprites = sprites;
+
+      
+  }
+
+  render() {
+    const currentSprite = this.isHead ? this.sprites.centipedeHead : this.sprites.centipedeBody;
+    const renderWidth = currentSprite.width * SPRITE_SCALE;
+    const renderHeight = currentSprite.height * SPRITE_SCALE;
+    image(
+      currentSprite,
+      Math.floor(this.x),
+      Math.floor(this.y),
+      renderWidth,
+      renderHeight
+    );
+  }
+
+  moveDownRow(){
+    this.xDir *= -1;
+    this.row += this.yDir;
+  }
+
+  setPosition(col, row) {
+    this.col = col;
+    this.row = row;
+
+    this.x = col * TILE_SIZE;
+    this.y = row * TILE_SIZE;
+  }
+
+  becomeHead() {
+    this.isHead = true;
+  }
+}

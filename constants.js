@@ -34,6 +34,11 @@ const MUSHROOM_SPRITES = {
   destroyed:{ x: 95, y: 81,  w: 8, h: 8 },
 };
 
+const CENTIPEDE_SPRITES = {
+  centipedeHead: { x:4, y: 18, w: 7, h:8},
+  centipedeBody: { x:4, y: 36, w: 7, h:8},
+}
+
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
   { x: 170, y: 0   }, // Nivel 2
@@ -60,3 +65,8 @@ const MAX_POST_BURST_COOLDOWN = 18;
 const MIN_SCAN_DISTANCE = 0;
 const MAX_SCAN_DISTANCE = CANVAS_HEIGHT;
 
+// Centipede
+const CENTIPEDE_LENGTH = 12;
+const INITIAL_X_CENTIPEDE = 5;
+const INITIAL_Y_CENTIPEDE = 2;
+const MIN_CENTIPEDE_SPEED = 3;
