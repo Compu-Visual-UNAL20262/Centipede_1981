@@ -13,6 +13,8 @@ class CentipedeSegment {
       this.bodySprites = [
         this.sprites.centipedeBodyA,
         this.sprites.centipedeBodyB,
+        this.sprites.centipedeBodyC,
+        this.sprites.centipedeBodyD,
       ];
 
       this.bodySpriteIndex = 0;

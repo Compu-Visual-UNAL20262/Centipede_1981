@@ -37,7 +37,9 @@ function updateLevelSprites() {
   centipedeSprites = {
     centipedeHead: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeHead.x, p.y + CENTIPEDE_SPRITES.centipedeHead.y, CENTIPEDE_SPRITES.centipedeHead.w, CENTIPEDE_SPRITES.centipedeHead.h),
     centipedeBodyA: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyA.x, p.y + CENTIPEDE_SPRITES.centipedeBodyA.y, CENTIPEDE_SPRITES.centipedeBodyA.w, CENTIPEDE_SPRITES.centipedeBodyA.h),
-    centipedeBodyB: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyB.x, p.y + CENTIPEDE_SPRITES.centipedeBodyB.y, CENTIPEDE_SPRITES.centipedeBodyA.w, CENTIPEDE_SPRITES.centipedeBodyA.h),
+    centipedeBodyB: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyB.x, p.y + CENTIPEDE_SPRITES.centipedeBodyB.y, CENTIPEDE_SPRITES.centipedeBodyB.w, CENTIPEDE_SPRITES.centipedeBodyB.h),
+    centipedeBodyC: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyC.x, p.y + CENTIPEDE_SPRITES.centipedeBodyC.y, CENTIPEDE_SPRITES.centipedeBodyC.w, CENTIPEDE_SPRITES.centipedeBodyC.h),
+    centipedeBodyD: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyD.x, p.y + CENTIPEDE_SPRITES.centipedeBodyD.y, CENTIPEDE_SPRITES.centipedeBodyD.w, CENTIPEDE_SPRITES.centipedeBodyD.h),
   }
 
   if (player) {
