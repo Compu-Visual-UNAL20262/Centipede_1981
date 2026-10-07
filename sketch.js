@@ -36,7 +36,8 @@ function updateLevelSprites() {
 
   centipedeSprites = {
     centipedeHead: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeHead.x, p.y + CENTIPEDE_SPRITES.centipedeHead.y, CENTIPEDE_SPRITES.centipedeHead.w, CENTIPEDE_SPRITES.centipedeHead.h),
-    centipedeBody: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBody.x, p.y + CENTIPEDE_SPRITES.centipedeBody.y, CENTIPEDE_SPRITES.centipedeBody.w, CENTIPEDE_SPRITES.centipedeBody.h),
+    centipedeBodyA: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyA.x, p.y + CENTIPEDE_SPRITES.centipedeBodyA.y, CENTIPEDE_SPRITES.centipedeBodyA.w, CENTIPEDE_SPRITES.centipedeBodyA.h),
+    centipedeBodyB: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyB.x, p.y + CENTIPEDE_SPRITES.centipedeBodyB.y, CENTIPEDE_SPRITES.centipedeBodyA.w, CENTIPEDE_SPRITES.centipedeBodyA.h),
   }
 
   if (player) {

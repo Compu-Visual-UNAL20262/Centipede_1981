@@ -62,6 +62,10 @@ class Centipede {
 
   render() {
     for (const segment of this.segments) {
+
+      if ((this.moveCounter) % floor(this.moveDelay/1.5) === 0) {
+        segment.changeSprite();
+      }
       segment.render();
     }
   }

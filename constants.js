@@ -36,7 +36,8 @@ const MUSHROOM_SPRITES = {
 
 const CENTIPEDE_SPRITES = {
   centipedeHead: { x:4, y: 18, w: 7, h:8},
-  centipedeBody: { x:4, y: 36, w: 7, h:8},
+  centipedeBodyA: { x:4, y: 36, w: 7, h:8},
+  centipedeBodyB: { x:38, y: 36, w: 7, h:8},
 }
 
 const PALETTE_OFFSETS = [

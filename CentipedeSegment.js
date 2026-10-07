@@ -10,12 +10,17 @@ class CentipedeSegment {
       this.yDir = 1;
       this.isHead = isHead;
       this.sprites = sprites;
+      this.bodySprite = this.sprites.centipedeBodyA;
 
       
   }
 
+  changeSprite(){
+    this.bodySprite = (this.bodySprite === this.sprites.centipedeBodyA) ? this.sprites.centipedeBodyB : this.sprites.centipedeBodyA;
+  }
+
   render() {
-    const currentSprite = this.isHead ? this.sprites.centipedeHead : this.sprites.centipedeBody;
+    const currentSprite = this.isHead ? this.sprites.centipedeHead : this.bodySprite;
     const renderWidth = currentSprite.width * SPRITE_SCALE;
     const renderHeight = currentSprite.height * SPRITE_SCALE;
     image(
