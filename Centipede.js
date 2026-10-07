@@ -4,10 +4,22 @@ class Centipede {
 
     this.moveDelay = moveDelay;
     this.moveCounter = 0;
+
+    this.animationCounter = 0;
+    this.animationDelay = 10;
   }
 
   update() {
     this.moveCounter++;
+    this.animationCounter++;
+
+    if (this.animationCounter >= this.animationDelay) {
+      this.animationCounter = 0;
+
+      for (const segment of this.segments) {
+        segment.changeSprite();
+      }
+    }
 
     if (this.moveCounter < this.moveDelay) {
       return;
@@ -16,7 +28,7 @@ class Centipede {
     this.moveCounter = 0;
 
     this.move();
-    this.increaseSpeed(); 
+    this.increaseSpeed();
   }
 
   move() {

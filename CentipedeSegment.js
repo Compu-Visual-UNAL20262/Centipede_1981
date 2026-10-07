@@ -10,13 +10,23 @@ class CentipedeSegment {
       this.yDir = 1;
       this.isHead = isHead;
       this.sprites = sprites;
-      this.bodySprite = this.sprites.centipedeBodyA;
+      this.bodySprites = [
+        this.sprites.centipedeBodyA,
+        this.sprites.centipedeBodyB,
+      ];
 
-      
+      this.bodySpriteIndex = 0;
+      this.bodySprite = this.bodySprites[0];      
   }
 
-  changeSprite(){
-    this.bodySprite = (this.bodySprite === this.sprites.centipedeBodyA) ? this.sprites.centipedeBodyB : this.sprites.centipedeBodyA;
+  changeSprite() {
+    this.bodySpriteIndex++;
+
+    if (this.bodySpriteIndex >= this.bodySprites.length) {
+      this.bodySpriteIndex = 0;
+    }
+
+    this.bodySprite = this.bodySprites[this.bodySpriteIndex];
   }
 
   render() {
