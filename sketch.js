@@ -88,6 +88,8 @@ async function setup() {
   updateLevelSprites();
 
   gridManager = new GridManager();
+  gridManager.generateLevel();
+  spawnCentipede();
 
 }
 
@@ -95,13 +97,6 @@ function draw() {
   background(0);
 
   switch (gameState) {
-    case 'START':
-      fill(255);
-      textSize(20);
-      textAlign(CENTER, CENTER);
-      text("CENTIPEDE\nPress ENTER to start", width / 2, height / 2);
-      break;
-
     case 'INGAME':
 
       for (let m of mushrooms) {
@@ -172,40 +167,95 @@ function draw() {
       drawUI();
       break;
 
+    case "START":
     case 'ENDGAME':
-      fill(255);
-      textSize(20);
-      textAlign(CENTER, CENTER);
-      text("GAME OVER", width / 2, height / 2 - 40);
-      text("FINAL SCORE: " + score, width / 2, height / 2);
-      text("Press ENTER to Restart", width / 2, height / 2 + 40);
+      for (let m of mushrooms) {
+        m.render();
+      }
+      for (let c of centipedes) {
+        c.update();
+        c.render();
+      }
+      score = 16543;
+      drawStartScreen();
       break;
   }
 }
 
-function drawRetroScore(scoreValue, yPosition) {
-  let scoreStr = String(scoreValue);
-  let charSize = 8;
-  let renderSize = 16;
+function drawRetroText(textStr, startX, startY, renderSize = 16, paletteIdx = null) {
+  let str = String(textStr).toUpperCase();
 
-  let totalWidth = scoreStr.length * renderSize;
-  let startX = (width / 2) - (totalWidth / 2);
+  let charW = 8;
+  let charH = 8;
 
-  for (let i = 0; i < scoreStr.length; i++) {
+  let pIdx = (paletteIdx !== null) ? paletteIdx : ((currentLevel - 1) % PALETTE_OFFSETS.length);
+  let p = PALETTE_OFFSETS[pIdx];
 
-    let d = int(scoreStr[i]);
-    let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
-    let p = PALETTE_OFFSETS[paletteIndex];
-    let sx = p.x + d * 9;
-    let sy = p.y + 108;
+  for (let i = 0; i < str.length; i++) {
+    let char = str[i];
     let dx = startX + i * renderSize;
-    let dy = yPosition;
+    let dy = startY;
 
+    // para los espacios
+    if (char === ' ') continue;
 
-    image(spriteSheet, dx, dy, renderSize, renderSize, sx, sy, charSize, charSize);
+    let sx = -1;
+    let sy = -1;
+    let code = char.charCodeAt(0);
 
+    if (code >= 48 && code <= 57) {
+      // 0 al 9
+      sx = p.x + (code - 48) * 9;
+      sy = p.y + 108;
+      charH = 8;
+    } else if (code >= 65 && code <= 79) {
+      // A a O
+      sx = p.x + (code - 65) * 9;
+      sy = p.y + 91;
+      charH = 7;
+    } else if (code >= 80 && code <= 90) {
+      // P a Z
+      sx = p.x + (code - 80) * 9;
+      sy = p.y + 100;
+      charH = 7;
+    } else if (char === '©' || char === '@') {
+      // copyright
+      sx = p.x + 99;
+      sy = p.y + 100;
+      charH = 7;
+    } else if (char === ':') {
+      // dos puntos
+      sx = p.x + 126;
+      sy = p.y + 108;
+      charH = 8;
+    }
+
+    if (sx !== -1 && sy !== -1 && spriteSheet) {
+      image(spriteSheet, dx, dy, renderSize, renderSize, sx, sy, charW, charH);
+    }
   }
 }
+
+
+function hasHighScoreTextAt(targetCol, targetRow) {
+  const startRow = 3;
+  const lineIdx = targetRow - startRow;
+  if (lineIdx < 0 || lineIdx >= HIGH_SCORES_TEXT.length) return false;
+
+  const line = HIGH_SCORES_TEXT[lineIdx];
+  if (!line || line.length === 0) return false;
+
+
+  const lineStartCol = Math.floor((COLS - line.length) / 2);
+  const charIdx = targetCol - lineStartCol;
+
+
+  if (charIdx >= 0 && charIdx < line.length && line[charIdx] !== ' ') {
+    return true;
+  }
+  return false;
+}
+
 
 function spawnCentipede() {
   centipedes = [];
@@ -312,7 +362,7 @@ function checkCollisions() {
     }
 
     if (b.isActive && spider) {
-      const spiderCenterX = spider.x + 15; 
+      const spiderCenterX = spider.x + 15;
       const spiderCenterY = spider.y + 8;
 
       if (dist(b.x, b.y, spiderCenterX, spiderCenterY) < COLLISION_RADIUS_SPIDER) {
@@ -325,21 +375,21 @@ function checkCollisions() {
     }
 
     if (b.isActive && flea) {
-            const fleaCenterX = flea.x + TILE_SIZE / 2;
-            const fleaCenterY = flea.y + TILE_SIZE / 2;
+      const fleaCenterX = flea.x + TILE_SIZE / 2;
+      const fleaCenterY = flea.y + TILE_SIZE / 2;
 
-            if (dist(b.x, b.y, fleaCenterX, fleaCenterY) < COLLISION_RADIUS) {
-              b.isActive = false;
-              bullets.splice(i, 1);
+      if (dist(b.x, b.y, fleaCenterX, fleaCenterY) < COLLISION_RADIUS) {
+        b.isActive = false;
+        bullets.splice(i, 1);
 
-              
-              if (flea.takeDamage()) {
-                explosions.push(new Explosion(flea.x, flea.y, explosionSprites));
-                score += (typeof FLEA_POINTS !== 'undefined' ? FLEA_POINTS : 200);
-                flea = null;
-              }
-            }
-          }
+
+        if (flea.takeDamage()) {
+          explosions.push(new Explosion(flea.x, flea.y, explosionSprites));
+          score += (typeof FLEA_POINTS !== 'undefined' ? FLEA_POINTS : 200);
+          flea = null;
+        }
+      }
+    }
 
   }
 
@@ -374,6 +424,21 @@ function startNewGame() {
 
 }
 
+function drawStartScreen() {
+  const startRow = 3;
+  const charWidth = 16;
+  for (let i = 0; i < HIGH_SCORES_TEXT.length; i++) {
+    const line = HIGH_SCORES_TEXT[i];
+    if (!line) continue;
+    const totalW = line.length * charWidth;
+    const x = Math.floor((width - totalW) / 2);
+    const y = (startRow + i) * TILE_SIZE;
+    drawRetroText(line, x, y, charWidth);
+  }
+
+  drawUI();
+}
+
 function drawUI() {
   fill(255);
   noStroke();
@@ -381,7 +446,9 @@ function drawUI() {
   textAlign(CENTER, TOP);
 
 
-  drawRetroScore(score, 10);
+  let scoreStr = String(score).padStart(2, '0');
+
+  drawRetroText(scoreStr, width / 2 - (scoreStr.length * 16) / 2, 10);
 
   let startX = 16;
   let lifeY = 10;

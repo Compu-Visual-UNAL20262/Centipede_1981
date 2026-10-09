@@ -31,6 +31,12 @@ class GridManager {
       }
     }
 
+    if (typeof gameState !== 'undefined' && (gameState === 'START' || gameState === 'ENDGAME')) {
+      if (typeof hasHighScoreTextAt === 'function' && hasHighScoreTextAt(targetCol, targetRow)) {
+        return true;
+      }
+    }
+
     return false;
   }
 }
