@@ -31,18 +31,25 @@ class CentipedeSegment {
     this.bodySprite = this.bodySprites[this.bodySpriteIndex];
   }
 
-  render() {
-    const currentSprite = this.isHead ? this.sprites.centipedeHead : this.bodySprite;
-    const renderWidth = currentSprite.width * SPRITE_SCALE;
-    const renderHeight = currentSprite.height * SPRITE_SCALE;
-    image(
-      currentSprite,
-      Math.floor(this.x),
-      Math.floor(this.y),
-      renderWidth,
-      renderHeight
-    );
+render() {
+  const currentSprite = this.isHead
+    ? this.sprites.centipedeHead
+    : this.bodySprite;
+
+  const renderWidth = currentSprite.width * SPRITE_SCALE;
+  const renderHeight = currentSprite.height * SPRITE_SCALE;
+
+  push();
+  translate(Math.floor(this.x), Math.floor(this.y));
+
+  if (this.isHead && this.xDir === 1) {
+    translate(renderWidth, 0);
+    scale(-1, 1);
   }
+
+  image(currentSprite, 0, 0, renderWidth, renderHeight);
+  pop();
+}
 
   moveDownRow(){
     this.xDir *= -1;

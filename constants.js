@@ -20,6 +20,9 @@ const PLAYER_SPEED = 4;
 const SHOOT_COOLDOWN_FRAMES = 10;
 const BULLET_SPEED = -8;
 
+// Mushroom
+const MUSHROOM_PROBABILITY = 0.05;
+
 // ─── Player Sprite Coordinates (source rectangles in sprite sheet) ───
 const PLAYER_SPRITES = {
   idle:     { x: 4,  y: 7,  w: 7, h: 10 },
@@ -70,6 +73,18 @@ const FLEA_HEALTH = 2;
 const FLEA_ANIMATION_DELAY = 6;
 const FLEA_POINTS = 200;
 const FLEA_DROP_MUSHROOM_CHANCE = 0.25;
+
+const SPIDER_SPRITES = {
+  spiderA: {x:0, y:54, w:15, h:8},
+  spiderB: {x:34, y:54, w:15, h:8},
+  spiderC: {x:68, y:54, w:15, h:8},
+}
+
+const EXPLOSION_SPRITES = {
+  explosionA: {x:72, y:63, w:8, h:8},
+  explosionB: {x:106, y:63, w:8, h:8},
+  explosionC: {x:140, y:63, w:8, h:8},
+}
 
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
@@ -148,3 +163,11 @@ function playSound(sound) {
   }
   return null;
 }
+const MIN_CENTIPEDE_DELAY = 3;
+const CENTIPEDE_INITIAL_DELAY = 7;
+
+// Spider
+const SPIDER_SPEED = 2;
+const SPIDER_SPAWN_CHANCE = 0.003;
+const MIN_SPIDER_MOVE_DELAY = 30;
+const COLLISION_RADIUS_SPIDER = COLLISION_RADIUS * 2;

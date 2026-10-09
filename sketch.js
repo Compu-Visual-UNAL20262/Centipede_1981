@@ -6,6 +6,7 @@ let currentLevel;
 let mushrooms;
 let centipedes;
 let bullets;
+let explosions;
 
 let player;
 let gridManager;
@@ -15,6 +16,7 @@ let playerSprites;
 let bulletSprite;
 let mushroomSprites;
 let centipedeSprites;
+let spiderSprites;
 
 function updateLevelSprites() {
   let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
@@ -42,6 +44,19 @@ function updateLevelSprites() {
     centipedeBodyD: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyD.x, p.y + CENTIPEDE_SPRITES.centipedeBodyD.y, CENTIPEDE_SPRITES.centipedeBodyD.w, CENTIPEDE_SPRITES.centipedeBodyD.h),
   }
 
+  spiderSprites ={
+    spiderA: spriteSheet.get(p.x + SPIDER_SPRITES.spiderA.x, p.y + SPIDER_SPRITES.spiderA.y, SPIDER_SPRITES.spiderA.w, SPIDER_SPRITES.spiderA.h),
+    spiderB: spriteSheet.get(p.x + SPIDER_SPRITES.spiderB.x, p.y + SPIDER_SPRITES.spiderB.y, SPIDER_SPRITES.spiderB.w, SPIDER_SPRITES.spiderB.h),
+    spiderC: spriteSheet.get(p.x + SPIDER_SPRITES.spiderC.x, p.y + SPIDER_SPRITES.spiderC.y, SPIDER_SPRITES.spiderC.w, SPIDER_SPRITES.spiderC.h),
+  }
+
+  explosionSprites = {
+    explosionA: spriteSheet.get(p.x + EXPLOSION_SPRITES.explosionA.x, p.y + EXPLOSION_SPRITES.explosionA.y, EXPLOSION_SPRITES.explosionA.w, EXPLOSION_SPRITES.explosionA.h),
+    explosionB: spriteSheet.get(p.x + EXPLOSION_SPRITES.explosionB.x, p.y + EXPLOSION_SPRITES.explosionB.y, EXPLOSION_SPRITES.explosionB.w, EXPLOSION_SPRITES.explosionB.h),
+    explosionC: spriteSheet.get(p.x + EXPLOSION_SPRITES.explosionC.x, p.y + EXPLOSION_SPRITES.explosionC.y, EXPLOSION_SPRITES.explosionC.w, EXPLOSION_SPRITES.explosionC.h),
+
+  }
+
   if (player) {
     player.sprites = playerSprites;
   }
@@ -57,6 +72,8 @@ async function setup() {
     centipedeSegments = [];
     bullets = [];
     centipedes = [];
+    explosions = [];
+    spider = null;
     
     gameState = 'START';
 
@@ -87,8 +104,22 @@ function draw() {
       for (let c of centipedes) {
         if (!player.isDying) {
           c.update();
+          checkCentipedeCollision();
         }
         c.render();
+      }
+
+      if (spider) {
+        spider.update();
+        spider.render();
+        checkSpiderCollision();
+        if (spider.isOutOfBoundX()) {
+          spider = null;
+        }
+      } else {
+        if (random() < SPIDER_SPAWN_CHANCE) {
+          spider = new Spider(spiderSprites);
+        }
       }
 
       if (keyIsDown(' ')) {
@@ -104,6 +135,15 @@ function draw() {
             
             if (!b.isActive) {
             bullets.splice(i, 1);
+            }
+        }
+
+        for (let i = explosions.length - 1; i >= 0; i--) {
+            const explosion = explosions[i];
+            explosion.render();
+
+            if (explosion.finished) {
+                explosions.splice(i, 1);
             }
         }
 
@@ -163,6 +203,34 @@ function levelUp() {
   spawnCentipede();
 }
 
+function checkSpiderCollision() {
+  for (let m = mushrooms.length - 1; m >= 0; m--) {
+    let mushroom = mushrooms[m];
+    let mCenterX = mushroom.x + TILE_SIZE / 2;
+    let mCenterY = mushroom.y + TILE_SIZE / 2;
+    if (dist(spider.x, spider.y, mCenterX, mCenterY) < COLLISION_RADIUS_SPIDER) {
+      mushrooms.splice(m, 1);
+    }
+  }
+}
+
+function checkCentipedeCollision(){
+  for (let c = centipedes.length - 1; c >= 0; c--) {
+    let centipede = centipedes[c];
+
+    for (let s = c; s >= 0; s--) {
+      let otherCentipede = centipedes[s];
+      
+      let sameCol = centipede.segments[0].col === otherCentipede.segments[0].col;
+      let sameRow = centipede.segments[0].row === otherCentipede.segments[0].row;
+
+      if (sameCol && sameRow && centipede !== otherCentipede) {
+        centipedes[c].segments[0].moveDownRow();
+      }
+    }
+  }
+}
+
 function checkCollisions() {
   for (let i = bullets.length - 1; i >= 0; i--) {
     let b = bullets[i];
@@ -195,15 +263,14 @@ function checkCollisions() {
         const segCenterY = segment.y + TILE_SIZE / 2;
 
         if (dist(b.x, b.y, segCenterX, segCenterY) < COLLISION_RADIUS) {
+          explosions.push(new Explosion(segment.x, segment.y, explosionSprites));
+          mushrooms.push(new Mushroom(segment.col, segment.row));
           b.isActive = false;
           bullets.splice(i, 1);
           score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
 
           if (segment.isHead) {
             score += 15; // Tal vez matar una cabeza de bonus :p 
-            mushrooms.push(
-              new Mushroom(segment.col, segment.row)
-            );
           }
 
           const newCentipede = centipede.hitSegment(s);
@@ -222,6 +289,14 @@ function checkCollisions() {
 
       if (!b.isActive) {
         break;
+      }
+    }
+    if (spider) {
+      if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS_SPIDER) {
+        explosions.push(new Explosion(spider.x, spider.y, explosionSprites));
+        b.isActive = false;
+        score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
+        spider = null;
       }
     }
   }
