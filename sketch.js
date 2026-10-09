@@ -102,8 +102,10 @@ function draw() {
       }
 
       for (let c of centipedes) {
-        c.update();
-        checkCentipedeCollision();
+        if (!player.isDying) {
+          c.update();
+          checkCentipedeCollision();
+        }
         c.render();
       }
 
@@ -151,7 +153,12 @@ function draw() {
         break;    
     
     case 'ENDGAME':
-      text("CENTIPEDE\nPress ENTER to start", width / 2, height / 2);
+      fill(255);
+      textSize(20);
+      textAlign(CENTER, CENTER);
+      text("GAME OVER", width / 2, height / 2 - 40);
+      text("FINAL SCORE: " + score, width / 2, height / 2);
+      text("Press ENTER to Restart", width / 2, height / 2 + 40);
       break;
   }
 }
@@ -252,10 +259,14 @@ function checkCollisions() {
       for (let s = centipede.segments.length - 1; s >= 0; s--) {
         const segment = centipede.segments[s];
 
-        if (dist(b.x, b.y, segment.x, segment.y) < COLLISION_RADIUS) {
+        const segCenterX = segment.x + TILE_SIZE / 2;
+        const segCenterY = segment.y + TILE_SIZE / 2;
+
+        if (dist(b.x, b.y, segCenterX, segCenterY) < COLLISION_RADIUS) {
           explosions.push(new Explosion(segment.x, segment.y, explosionSprites));
           mushrooms.push(new Mushroom(segment.col, segment.row));
           b.isActive = false;
+          bullets.splice(i, 1);
           score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
 
           if (segment.isHead) {
@@ -299,6 +310,7 @@ function startNewGame() {
     score=0;
     lives=3;
     currentLevel=1;
+    updateLevelSprites();
 
     gameState= 'INGAME';
 
@@ -308,6 +320,14 @@ function startNewGame() {
     gridManager.generateLevel();
 
     spawnCentipede();
+
+    if (typeof SOUNDS !== 'undefined' && SOUNDS.track) {
+      SOUNDS.track.loop = true;
+      SOUNDS.track.currentTime = 0;
+      SOUNDS.track.play().catch(() => {});
+    }
+
+
 }
 
 function drawUI() {

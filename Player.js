@@ -1,13 +1,6 @@
 // Player.js
 
 class Player {
-  /**
-   * Creates the player ship.
-   * @param {number} x - Initial horizontal position.
-   * @param {number} y - Initial vertical position.
-   * @param {{ idle: p5.Image, shooting: p5.Image }} sprites
-   *   Pre-extracted sprite images for idle and shooting states.
-   */
   constructor(x, y, sprites) {
     this.x = x;
     this.y = y;
@@ -19,14 +12,11 @@ class Player {
     this.shootCooldown = 0;
     this.burstBulletsRemaining = 0;
 
-    // Exact hitbox matching visual sprite boundaries:
-    // Prevents the player from penetrating into mushroom tiles and erasing their pixels.
     this.hitboxOffsetX = 0;
     this.hitboxOffsetY = 0;
     this.hitboxWidth = this.width;
     this.hitboxHeight = this.height;
 
-    // Death animation state
     this.isDying = false;
     this.deathFrameIndex = 0;
     this.deathTimer = 0;
@@ -35,17 +25,11 @@ class Player {
     this.sprites = sprites;
   }
 
-  /**
-   * Getter for sprites object.
-   */
   get sprites() {
     return this._sprites;
   }
 
-  /**
-   * Setter for sprites: automatically converts solid black background pixels
-   * into fully transparent pixels so the sprite doesn't overwrite adjacent tiles.
-   */
+  // Convert solid black background pixels to transparent to prevent overwriting adjacent tiles
   set sprites(val) {
     this._sprites = val;
     if (val) {
@@ -54,11 +38,6 @@ class Player {
     }
   }
 
-  /**
-   * Converts all pure black pixels (0, 0, 0) in a p5.Image to fully transparent.
-   * Prevents the player's sprite rectangular bounding box from erasing background or mushroom pixels.
-   * @param {p5.Image} img
-   */
   makeBlackTransparent(img) {
     if (!img) return;
     img.loadPixels();
@@ -71,12 +50,6 @@ class Player {
     img.updatePixels();
   }
 
-  /**
-   * Checks whether the player's bounding box at (testX, testY) collides with any active mushroom.
-   * @param {number} testX - Horizontal position to test.
-   * @param {number} testY - Vertical position to test.
-   * @returns {Mushroom|null} The mushroom entity collided with, or null.
-   */
   checkMushroomCollision(testX, testY) {
     if (typeof mushrooms === 'undefined' || !Array.isArray(mushrooms)) return null;
 
@@ -106,10 +79,6 @@ class Player {
     return null;
   }
 
-  /**
-   * Moves the player with collision detection against mushrooms and corner nudging
-   * to smoothly slide and navigate around obstacles.
-   */
   handleMovement() {
     let moveX = 0;
     let moveY = 0;
@@ -138,7 +107,6 @@ class Player {
     let blockedMushroomX = null;
     let blockedMushroomY = null;
 
-    // ── Horizontal movement ──────────────────────────────────────────
     for (let s = 0; s < totalStepsX; s++) {
       const nextX = constrain(this.x + stepX, 0, CANVAS_WIDTH - this.width);
       const hit = this.checkMushroomCollision(nextX, this.y);
@@ -150,7 +118,6 @@ class Player {
       }
     }
 
-    // ── Vertical movement ────────────────────────────────────────────
     for (let s = 0; s < totalStepsY; s++) {
       const nextY = constrain(this.y + stepY, PLAYER_AREA_Y, CANVAS_HEIGHT - this.height);
       const hit = this.checkMushroomCollision(this.x, nextY);
@@ -162,8 +129,7 @@ class Player {
       }
     }
 
-    // ── Corner Nudging (Rodear obstáculos) ───────────────────────────
-    // If blocked in one axis and moving purely along that axis, nudge around the mushroom
+    // Corner nudging to smoothly slide around mushroom obstacles
     if (blockedMushroomY && moveX === 0) {
       const mCenterX = blockedMushroomY.x + TILE_SIZE / 2;
       const pCenterX = this.x + this.width / 2;
@@ -195,10 +161,6 @@ class Player {
     }
   }
 
-  /**
-   * Checks collisions with centipedes and spiders.
-   * Initiates the death animation if contact occurs.
-   */
   checkEnemyCollision() {
     if (this.isDying || this.invulnerableTimer > 0) return;
 
@@ -207,7 +169,7 @@ class Player {
     const pBoxTop = this.y + this.hitboxOffsetY;
     const pBoxBottom = pBoxTop + this.hitboxHeight;
 
-    // 1. Centipedes
+    // Centipede collision
     if (typeof centipedes !== 'undefined' && Array.isArray(centipedes)) {
       for (let i = 0; i < centipedes.length; i++) {
         const centipede = centipedes[i];
@@ -235,7 +197,7 @@ class Player {
       }
     }
 
-    // 2. Spider (supports global spiders array or spider instance)
+    // Spider collision
     const spiderList = [];
     if (typeof spiders !== 'undefined' && Array.isArray(spiders)) {
       spiderList.push(...spiders);
@@ -263,22 +225,67 @@ class Player {
         return;
       }
     }
+
+    // Flea collision
+    const fleaList = [];
+    if (typeof fleas !== 'undefined' && Array.isArray(fleas)) {
+      fleaList.push(...fleas);
+    }
+    if (typeof flea !== 'undefined' && flea) {
+      fleaList.push(flea);
+    }
+
+    for (let f = 0; f < fleaList.length; f++) {
+      const fl = fleaList[f];
+      if (!fl || fl.isActive === false) continue;
+
+      const flX = typeof fl.getX === 'function' ? fl.getX() : fl.x;
+      const flY = typeof fl.getY === 'function' ? fl.getY() : fl.y;
+      const flW = typeof fl.getWidth === 'function' ? fl.getWidth() : (fl.width || TILE_SIZE);
+      const flH = typeof fl.getHeight === 'function' ? fl.getHeight() : (fl.height || TILE_SIZE);
+
+      if (
+        pBoxLeft < flX + flW &&
+        pBoxRight > flX &&
+        pBoxTop < flY + flH &&
+        pBoxBottom > flY
+      ) {
+        this.die();
+        return;
+      }
+    }
   }
 
-  /**
-   * Starts the player death animation and disables controls.
-   */
   die() {
     if (this.isDying) return;
     this.isDying = true;
     this.deathFrameIndex = 0;
     this.deathTimer = 0;
+    this.playDeathSound();
   }
 
-  /**
-   * Called when the death animation sequence finishes all frames.
-   * Decrements lives, resets player position, or triggers game over.
-   */
+  playDeathSound() {
+    if (typeof playSound === 'function' && typeof SOUNDS !== 'undefined') {
+      playSound(SOUNDS.dead);
+    } else if (typeof SOUNDS !== 'undefined' && SOUNDS.dead) {
+      try {
+        SOUNDS.dead.currentTime = 0;
+        SOUNDS.dead.play().catch(() => {});
+      } catch (e) {}
+    }
+  }
+
+  playShootSound() {
+    if (typeof playSound === 'function' && typeof SOUNDS !== 'undefined') {
+      playSound(SOUNDS.shoot);
+    } else if (typeof SOUNDS !== 'undefined' && SOUNDS.shoot) {
+      try {
+        SOUNDS.shoot.currentTime = 0;
+        SOUNDS.shoot.play().catch(() => {});
+      } catch (e) {}
+    }
+  }
+
   onDeathComplete() {
     if (typeof lives !== 'undefined') {
       lives--;
@@ -286,12 +293,16 @@ class Player {
         if (typeof gameState !== 'undefined') {
           gameState = 'ENDGAME';
         }
+
+        if (typeof SOUNDS !== 'undefined' && SOUNDS.track) {
+          SOUNDS.track.pause();
+        }
+
         this.isDying = false;
         return;
       }
     }
 
-    // Respawn player
     this.isDying = false;
     this.deathFrameIndex = 0;
     this.deathTimer = 0;
@@ -300,13 +311,16 @@ class Player {
     this.shootCooldown = 20;
     this.burstBulletsRemaining = 0;
     this.invulnerableTimer = 60; // 1 second invulnerability on respawn
+
+    if (typeof spawnCentipede === 'function') {
+      spawnCentipede();
+    }
+    if (typeof bullets !== 'undefined') {
+      bullets = [];
+    }
   }
 
-  /**
-   * Handles player update, movement, enemy collision, and death animation sequence.
-   */
   update() {
-    // ── Death sequence tick ──────────────────────────────────────────
     if (this.isDying) {
       this.deathTimer++;
       if (this.deathTimer >= PLAYER_DEATH_FRAME_DELAY) {
@@ -319,30 +333,25 @@ class Player {
       return;
     }
 
-    // ── Invulnerability countdown ────────────────────────────────────
     if (this.invulnerableTimer > 0) {
       this.invulnerableTimer--;
     }
 
-    // ── Movement & Mushroom obstacle avoidance ───────────────────────
     this.handleMovement();
-
-    // ── Enemy collision checks ───────────────────────────────────────
     this.checkEnemyCollision();
 
-    // ── Cooldown tick ────────────────────────────────────────────────
     if (this.shootCooldown > 0) {
       this.shootCooldown--;
     }
   }
 
-  /**
-   * Scans global mushrooms and centipedeSegments arrays to find the closest entity
-   * located directly above the player in the same column (X range).
-   * @returns {number} The vertical distance (Y) to the closest entity above, or Infinity if none.
-   */
+  // Find vertical distance to the closest entity aligned in the bullet path
   getClosestEntityDistanceY() {
     let minDistance = Infinity;
+
+    const bulletWidth = PLAYER_SPRITES.bullet.w * SPRITE_SCALE;
+    const bulletSpawnX = this.x + Math.floor(this.width / 2) - Math.floor(bulletWidth / 2);
+    const bulletCenterX = bulletSpawnX + bulletWidth / 2;
 
     const scanEntities = (entityList) => {
       if (!entityList || !Array.isArray(entityList)) return;
@@ -351,18 +360,22 @@ class Player {
         const entity = entityList[i];
         if (!entity) continue;
         if (entity.isActive === false || entity.isDestroyed === true || entity.alive === false) continue;
+        if (typeof entity.health === 'number' && entity.health <= 0) continue;
 
         const entX = typeof entity.getX === 'function' ? entity.getX() : entity.x;
         const entY = typeof entity.getY === 'function' ? entity.getY() : entity.y;
         if (typeof entX !== 'number' || typeof entY !== 'number') continue;
 
         const entWidth = typeof entity.getWidth === 'function' ? entity.getWidth() : (entity.width || entity.w || TILE_SIZE);
+        const entHeight = typeof entity.getHeight === 'function' ? entity.getHeight() : (entity.height || entity.h || TILE_SIZE);
 
-        const inSameColumn = (entX < this.x + this.width) && (entX + entWidth > this.x);
-        const isAbove = entY < this.y;
+        const entCenterX = entX + entWidth / 2;
 
-        if (inSameColumn && isAbove) {
-          const distanceY = this.y - entY;
+        const inBulletPath = Math.abs(bulletCenterX - entCenterX) < COLLISION_RADIUS;
+        const isAbove = (entY + entHeight / 2) < this.y;
+
+        if (inBulletPath && isAbove) {
+          const distanceY = Math.max(0, this.y - (entY + entHeight));
           if (distanceY < minDistance) {
             minDistance = distanceY;
           }
@@ -373,20 +386,21 @@ class Player {
     if (typeof mushrooms !== 'undefined') {
       scanEntities(mushrooms);
     }
-    if (typeof centipedeSegments !== 'undefined') {
+    if (typeof centipedes !== 'undefined' && Array.isArray(centipedes)) {
+      for (let i = 0; i < centipedes.length; i++) {
+        const c = centipedes[i];
+        if (c && Array.isArray(c.segments)) {
+          scanEntities(c.segments);
+        }
+      }
+    }
+    if (typeof centipedeSegments !== 'undefined' && Array.isArray(centipedeSegments) && centipedeSegments.length > 0) {
       scanEntities(centipedeSegments);
     }
 
     return minDistance;
   }
 
-  /**
-   * Calculates a dynamic post-burst cooldown proportional to target distance.
-   * Shorter distances return values near MIN_POST_BURST_COOLDOWN,
-   * while longer distances return values near MAX_POST_BURST_COOLDOWN.
-   * @param {number} distance - Vertical distance in pixels to the closest entity above.
-   * @returns {number} Dynamic cooldown in frames.
-   */
   calculateDynamicCooldown(distance) {
     if (!Number.isFinite(distance)) {
       return MAX_POST_BURST_COOLDOWN;
@@ -403,12 +417,6 @@ class Player {
     return Math.round(dynamicCooldown);
   }
 
-  /**
-   * Fires a bullet if the cooldown has expired.
-   * Uses proximity scanning to dynamically adjust cooldowns and fire bursts.
-   * Centered horizontally relative to the player's current width.
-   * @param {p5.Image} bulletSprite - Pre-extracted sprite image for the bullet.
-   */
   shoot(bulletSprite) {
     if (this.isDying) return;
 
@@ -422,30 +430,24 @@ class Player {
       const closestDistance = this.getClosestEntityDistanceY();
       const hasTargetAbove = Number.isFinite(closestDistance);
 
-      if (this.burstBulletsRemaining > 0) {
+      if (!hasTargetAbove) {
+        this.burstBulletsRemaining = 0;
+        this.shootCooldown = NORMAL_SHOOT_COOLDOWN;
+      } else if (this.burstBulletsRemaining > 0) {
         this.burstBulletsRemaining--;
         if (this.burstBulletsRemaining === 0) {
           this.shootCooldown = this.calculateDynamicCooldown(closestDistance);
         } else {
           this.shootCooldown = RAPID_SHOOT_COOLDOWN;
         }
-      } else if (hasTargetAbove) {
+      } else {
         this.burstBulletsRemaining = BURST_BULLET_COUNT;
         this.burstBulletsRemaining--;
         this.shootCooldown = RAPID_SHOOT_COOLDOWN;
-      } else {
-        this.burstBulletsRemaining = 0;
-        this.shootCooldown = NORMAL_SHOOT_COOLDOWN;
       }
     }
   }
 
-  /**
-   * Retrieves and caches the death animation sprites for the current palette,
-   * ensuring all solid black background pixels are converted to transparent.
-   * @param {number} frameIndex
-   * @returns {p5.Image|null}
-   */
   getDeathSprite(frameIndex) {
     const levelKey = typeof currentLevel !== 'undefined' ? currentLevel : 1;
     if (!this._deathSpriteCache || this._deathSpriteCacheLevel !== levelKey) {
@@ -466,14 +468,7 @@ class Player {
     return this._deathSpriteCache ? this._deathSpriteCache[frameIndex] : null;
   }
 
-  /**
-   * Renders the player sprite or death disappearance sequence.
-   * Shows the shooting frame during the first quarter of the cooldown,
-   * otherwise shows the idle frame.
-   * Uses Math.floor() to pixel-snap and prevent sub-pixel texture bleeding.
-   */
   render() {
-    // ── Death animation sequence ─────────────────────────────────────
     if (this.isDying) {
       if (this.deathFrameIndex < PLAYER_DEATH_SPRITES.length) {
         const frame = PLAYER_DEATH_SPRITES[this.deathFrameIndex];
@@ -482,7 +477,6 @@ class Player {
         const renderWidth = frame.w * SPRITE_SCALE;
         const renderHeight = frame.h * SPRITE_SCALE;
 
-        // Centered on the player's entity center
         const centerX = this.x + this.width / 2;
         const centerY = this.y + this.height / 2;
         const drawX = Math.floor(centerX - renderWidth / 2);
@@ -501,7 +495,7 @@ class Player {
       return;
     }
 
-    // ── Flicker during respawn invulnerability ───────────────────────
+    // Flicker during respawn invulnerability
     if (this.invulnerableTimer > 0 && Math.floor(this.invulnerableTimer / 4) % 2 === 0) {
       return;
     }
@@ -524,60 +518,31 @@ class Player {
     );
   }
 
-  /**
-   * Returns the current horizontal position.
-   * @returns {number}
-   */
   getX() {
     return this.x;
   }
 
-  /**
-   * Returns the current vertical position.
-   * @returns {number}
-   */
   getY() {
     return this.y;
   }
 
-  /**
-   * Returns the rendered width of the player.
-   * @returns {number}
-   */
   getWidth() {
     return this.width;
   }
 
-  /**
-   * Returns the rendered height of the player.
-   * @returns {number}
-   */
   getHeight() {
     return this.height;
   }
 
-  /**
-   * Returns the current movement speed.
-   * @returns {number}
-   */
   getSpeed() {
     return this.speed;
   }
 
-  /**
-   * Returns the remaining shooting cooldown frames.
-   * @returns {number}
-   */
   getShootCooldown() {
     return this.shootCooldown;
   }
 
-  /**
-   * Returns the count of remaining burst bullets.
-   * @returns {number}
-   */
   getBurstBulletsRemaining() {
     return this.burstBulletsRemaining;
   }
 }
-
