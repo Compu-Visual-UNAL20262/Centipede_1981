@@ -171,3 +171,25 @@ const SPIDER_SPEED = 2;
 const SPIDER_SPAWN_CHANCE = 0.003;
 const MIN_SPIDER_MOVE_DELAY = 30;
 const COLLISION_RADIUS_SPIDER = COLLISION_RADIUS * 2;
+
+
+//high scores
+const HIGH_SCORES_TEXT = [
+  "HIGH SCORES",
+  "16543 EJD",
+  "15432 DFT",
+  "14320 CAD",
+  "13210 DCB",
+  "13010 ED ",
+  "12805 DEW",
+  "12201 DFW",
+  "12102 GJR",
+  "",
+  "CREDITS 2",
+  "BONUS EVERY 12000",
+  "",
+  "",
+  "",
+  "",
+  "PRESS ENTER TO START",
+];
