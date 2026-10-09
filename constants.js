@@ -27,6 +27,19 @@ const PLAYER_SPRITES = {
   bullet:   { x: 24, y: 2,  w: 1, h: 6  },
 };
 
+// ─── Player Death Animation Sprites (disappearance sequence) ────────
+const PLAYER_DEATH_SPRITES = [
+  { x: 34,  y: 0, w: 16, h: 8 },
+  { x: 51,  y: 0, w: 16, h: 8 },
+  { x: 68,  y: 0, w: 16, h: 8 },
+  { x: 85,  y: 0, w: 16, h: 8 },
+  { x: 103, y: 0, w: 14, h: 7 },
+  { x: 121, y: 0, w: 12, h: 7 },
+  { x: 140, y: 0, w: 8,  h: 6 },
+  { x: 158, y: 3, w: 5,  h: 3 }
+];
+const PLAYER_DEATH_FRAME_DELAY = 6;
+
 const MUSHROOM_SPRITES = {
   life_4: { x: 68,  y: 81,  w: 8, h: 8 },
   life_3: { x: 77, y: 81,  w: 8, h: 8 },
