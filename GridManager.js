@@ -10,7 +10,7 @@ class GridManager {
 
     for (let row = 3; row < this.area; row++) {
       for (let col = 0; col < COLS; col++) {
-        if (random() < 0.05) {
+        if (random() < MUSHROOM_PROBABILITY) {
           if (!this.hasMushroomAt(col, row)) {
             mushrooms.push(
               new Mushroom(col, row)
