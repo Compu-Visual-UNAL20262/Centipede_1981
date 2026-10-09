@@ -140,10 +140,20 @@ function drawRetroScore(scoreValue, yPosition) {
   }
 }
 
+function spawnCentipede() {
+  centipedes = [];
+  let tmp = [];
+  for (let i = 0; i < CENTIPEDE_LENGTH; i++) {
+    tmp.push(new CentipedeSegment(INITIAL_X_CENTIPEDE + i, INITIAL_Y_CENTIPEDE, -1, i === 0, centipedeSprites));
+  }
+  centipedes.push(new Centipede(tmp));
+}
+
 function levelUp() {
   currentLevel++;
   bullets = [];
   updateLevelSprites();
+  spawnCentipede();
 }
 
 function checkCollisions() {
@@ -204,6 +214,10 @@ function checkCollisions() {
       }
     }
   }
+
+  if (centipedes.length === 0) {
+      levelUp();
+    }
 }
 
 function startNewGame() {
@@ -218,12 +232,7 @@ function startNewGame() {
 
     gridManager.generateLevel();
 
-    let tmp;
-    tmp = [];
-    for (let i = 0; i < CENTIPEDE_LENGTH; i++) {
-      tmp.push(new CentipedeSegment(INITIAL_X_CENTIPEDE + i, INITIAL_Y_CENTIPEDE, -1, i === 0, centipedeSprites));
-    }
-    centipedes.push(new Centipede(tmp));
+    spawnCentipede();
 
 
 }
