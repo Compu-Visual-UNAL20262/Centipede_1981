@@ -94,6 +94,7 @@ function draw() {
 
       for (let c of centipedes) {
         c.update();
+        checkCentipedeCollision();
         c.render();
       }
 
@@ -168,15 +169,33 @@ function levelUp() {
 }
 
 function checkSpiderCollision() {
-    for (let m = mushrooms.length - 1; m >= 0; m--) {
-      let mushroom = mushrooms[m];
-      let mCenterX = mushroom.x + TILE_SIZE / 2;
-      let mCenterY = mushroom.y + TILE_SIZE / 2;
-      console.log("Distancia:", dist(spider.x, spider.y, mCenterX, mCenterY), "Radio de colision:", COLLISION_RADIUS_SPIDER)
-      if (dist(spider.x, spider.y, mCenterX, mCenterY) < COLLISION_RADIUS_SPIDER) {
-        mushrooms.splice(m, 1);
+  for (let m = mushrooms.length - 1; m >= 0; m--) {
+    let mushroom = mushrooms[m];
+    let mCenterX = mushroom.x + TILE_SIZE / 2;
+    let mCenterY = mushroom.y + TILE_SIZE / 2;
+    if (dist(spider.x, spider.y, mCenterX, mCenterY) < COLLISION_RADIUS_SPIDER) {
+      mushrooms.splice(m, 1);
+    }
+  }
+}
+
+function checkCentipedeCollision(){
+  for (let c = centipedes.length - 1; c >= 0; c--) {
+    let centipede = centipedes[c];
+
+    for (let s = c; s >= 0; s--) {
+      let otherCentipede = centipedes[s];
+      
+      let sameCol = centipede.segments[0].col === otherCentipede.segments[0].col;
+      let sameRow = centipede.segments[0].row === otherCentipede.segments[0].row;
+
+      if (sameCol && sameRow && centipede !== otherCentipede) {
+        console.log("Checking collision between centipedes", c, "and", s, "SameCol:", sameCol, "SameRow:", sameRow);
+
+        centipedes[c].segments[0].moveDownRow();
       }
     }
+  }
 }
 
 function checkCollisions() {
@@ -213,9 +232,6 @@ function checkCollisions() {
 
           if (segment.isHead) {
             score += 15; // Tal vez matar una cabeza de bonus :p 
-            mushrooms.push(
-              new Mushroom(segment.col, segment.row)
-            );
           }
 
           const newCentipede = centipede.hitSegment(s);
@@ -223,6 +239,10 @@ function checkCollisions() {
           if (newCentipede !== null) {
             centipedes.push(newCentipede);
           }
+
+          mushrooms.push(
+              new Mushroom(segment.col, segment.row)
+            );
 
           if (centipede.isDead()) {
             centipedes.splice(c, 1);
