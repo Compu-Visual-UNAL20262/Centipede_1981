@@ -7,6 +7,7 @@ let mushrooms;
 let centipedes;
 let bullets;
 let explosions;
+let flea;
 
 let player;
 let gridManager;
@@ -17,12 +18,13 @@ let bulletSprite;
 let mushroomSprites;
 let centipedeSprites;
 let spiderSprites;
+let fleaSprites;
 
 function updateLevelSprites() {
   let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
   let p = PALETTE_OFFSETS[paletteIndex];
 
-    mushroomSprites = {
+  mushroomSprites = {
     life_4: spriteSheet.get(p.x + MUSHROOM_SPRITES.life_4.x, p.y + MUSHROOM_SPRITES.life_4.y, MUSHROOM_SPRITES.life_4.w, MUSHROOM_SPRITES.life_4.h),
     life_3: spriteSheet.get(p.x + MUSHROOM_SPRITES.life_3.x, p.y + MUSHROOM_SPRITES.life_3.y, MUSHROOM_SPRITES.life_3.w, MUSHROOM_SPRITES.life_3.h),
     life_2: spriteSheet.get(p.x + MUSHROOM_SPRITES.life_2.x, p.y + MUSHROOM_SPRITES.life_2.y, MUSHROOM_SPRITES.life_2.w, MUSHROOM_SPRITES.life_2.h),
@@ -44,7 +46,7 @@ function updateLevelSprites() {
     centipedeBodyD: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyD.x, p.y + CENTIPEDE_SPRITES.centipedeBodyD.y, CENTIPEDE_SPRITES.centipedeBodyD.w, CENTIPEDE_SPRITES.centipedeBodyD.h),
   }
 
-  spiderSprites ={
+  spiderSprites = {
     spiderA: spriteSheet.get(p.x + SPIDER_SPRITES.spiderA.x, p.y + SPIDER_SPRITES.spiderA.y, SPIDER_SPRITES.spiderA.w, SPIDER_SPRITES.spiderA.h),
     spiderB: spriteSheet.get(p.x + SPIDER_SPRITES.spiderB.x, p.y + SPIDER_SPRITES.spiderB.y, SPIDER_SPRITES.spiderB.w, SPIDER_SPRITES.spiderB.h),
     spiderC: spriteSheet.get(p.x + SPIDER_SPRITES.spiderC.x, p.y + SPIDER_SPRITES.spiderC.y, SPIDER_SPRITES.spiderC.w, SPIDER_SPRITES.spiderC.h),
@@ -57,6 +59,10 @@ function updateLevelSprites() {
 
   }
 
+  fleaSprites = FLEA_SPRITES.map(s =>
+    spriteSheet.get(p.x + s.x, p.y + s.y, s.w, s.h)
+  );
+
   if (player) {
     player.sprites = playerSprites;
   }
@@ -64,23 +70,24 @@ function updateLevelSprites() {
 
 
 async function setup() {
-    spriteSheet = await loadImage('assets/sprite.png');
-    createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-    noSmooth();
+  spriteSheet = await loadImage('assets/sprite.png');
+  createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+  noSmooth();
 
-    mushrooms = [];
-    centipedeSegments = [];
-    bullets = [];
-    centipedes = [];
-    explosions = [];
-    spider = null;
-    
-    gameState = 'START';
+  mushrooms = [];
+  centipedeSegments = [];
+  bullets = [];
+  centipedes = [];
+  explosions = [];
+  spider = null;
+  flea = null;
 
-    currentLevel = 1;
-    updateLevelSprites();
+  gameState = 'START';
 
-     gridManager = new GridManager();
+  currentLevel = 1;
+  updateLevelSprites();
+
+  gridManager = new GridManager();
 
 }
 
@@ -122,36 +129,49 @@ function draw() {
         }
       }
 
+
+      if (flea) {
+        flea.update(score);
+        flea.render();
+        if (!flea.isActive) {
+          flea = null;
+        }
+      } else {
+        if (random() < 0.005) {
+          flea = new Flea(floor(random(COLS)), fleaSprites);
+        }
+      }
+
       if (keyIsDown(' ')) {
         player.shoot(bulletSprite);
-        }  
-        player.update();
-        player.render();
-        
-        for (let i = bullets.length - 1; i >= 0; i--) {
-            let b = bullets[i];
-            b.move();
-            b.render();
-            
-            if (!b.isActive) {
-            bullets.splice(i, 1);
-            }
+      }
+      player.update();
+      player.render();
+
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i];
+        b.move();
+        b.render();
+
+        if (!b.isActive) {
+          bullets.splice(i, 1);
         }
+      }
 
-        for (let i = explosions.length - 1; i >= 0; i--) {
-            const explosion = explosions[i];
-            explosion.render();
+      for (let i = explosions.length - 1; i >= 0; i--) {
+        const explosion = explosions[i];
+        explosion.render();
 
-            if (explosion.finished) {
-                explosions.splice(i, 1);
-            }
+        if (explosion.finished) {
+          explosions.splice(i, 1);
         }
+      }
 
-        checkCollisions();
+      checkCollisions();
 
-        drawUI();
-        break;    
-    
+      drawUI();
+      break;
+
     case 'ENDGAME':
       fill(255);
       textSize(20);
@@ -165,14 +185,14 @@ function draw() {
 
 function drawRetroScore(scoreValue, yPosition) {
   let scoreStr = String(scoreValue);
-  let charSize = 8; 
-  let renderSize = 16; 
-  
+  let charSize = 8;
+  let renderSize = 16;
+
   let totalWidth = scoreStr.length * renderSize;
   let startX = (width / 2) - (totalWidth / 2);
 
   for (let i = 0; i < scoreStr.length; i++) {
-   
+
     let d = int(scoreStr[i]);
     let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
     let p = PALETTE_OFFSETS[paletteIndex];
@@ -181,7 +201,7 @@ function drawRetroScore(scoreValue, yPosition) {
     let dx = startX + i * renderSize;
     let dy = yPosition;
 
-    
+
     image(spriteSheet, dx, dy, renderSize, renderSize, sx, sy, charSize, charSize);
 
   }
@@ -214,13 +234,13 @@ function checkSpiderCollision() {
   }
 }
 
-function checkCentipedeCollision(){
+function checkCentipedeCollision() {
   for (let c = centipedes.length - 1; c >= 0; c--) {
     let centipede = centipedes[c];
 
     for (let s = c; s >= 0; s--) {
       let otherCentipede = centipedes[s];
-      
+
       let sameCol = centipede.segments[0].col === otherCentipede.segments[0].col;
       let sameRow = centipede.segments[0].row === otherCentipede.segments[0].row;
 
@@ -239,17 +259,17 @@ function checkCollisions() {
       let mCenterX = m.x + TILE_SIZE / 2;
       let mCenterY = m.y + TILE_SIZE / 2;
 
-      
+
       if (dist(b.x, b.y, mCenterX, mCenterY) < COLLISION_RADIUS) {
         b.isActive = false;
         bullets.splice(i, 1);
 
-        
+
         if (m.takeDamage()) {
           mushrooms.splice(j, 1);
-          score += 1; 
+          score += 1;
         }
-        break; 
+        break;
       }
     }
 
@@ -282,7 +302,6 @@ function checkCollisions() {
           if (centipede.isDead()) {
             centipedes.splice(c, 1);
           }
-
           break;
         }
       }
@@ -291,41 +310,66 @@ function checkCollisions() {
         break;
       }
     }
-    if (spider) {
-      if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS_SPIDER) {
+
+    if (b.isActive && spider) {
+      const spiderCenterX = spider.x + 15; 
+      const spiderCenterY = spider.y + 8;
+
+      if (dist(b.x, b.y, spiderCenterX, spiderCenterY) < COLLISION_RADIUS_SPIDER) {
         explosions.push(new Explosion(spider.x, spider.y, explosionSprites));
         b.isActive = false;
+        bullets.splice(i, 1);
         score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
         spider = null;
       }
     }
+
+    if (b.isActive && flea) {
+            const fleaCenterX = flea.x + TILE_SIZE / 2;
+            const fleaCenterY = flea.y + TILE_SIZE / 2;
+
+            if (dist(b.x, b.y, fleaCenterX, fleaCenterY) < COLLISION_RADIUS) {
+              b.isActive = false;
+              bullets.splice(i, 1);
+
+              
+              if (flea.takeDamage()) {
+                explosions.push(new Explosion(flea.x, flea.y, explosionSprites));
+                score += (typeof FLEA_POINTS !== 'undefined' ? FLEA_POINTS : 200);
+                flea = null;
+              }
+            }
+          }
+
   }
 
   if (centipedes.length === 0) {
-      levelUp();
-    }
+    levelUp();
+  }
 }
 
 function startNewGame() {
-    score=0;
-    lives=3;
-    currentLevel=1;
-    updateLevelSprites();
+  score = 0;
+  lives = 3;
+  currentLevel = 1;
+  updateLevelSprites();
 
-    gameState= 'INGAME';
+  gameState = 'INGAME';
 
-    player = new Player(CANVAS_WIDTH / 2, CANVAS_HEIGHT - TILE_SIZE * 2, playerSprites);
-    bullets = [];
+  player = new Player(CANVAS_WIDTH / 2, CANVAS_HEIGHT - TILE_SIZE * 2, playerSprites);
+  bullets = [];
 
-    gridManager.generateLevel();
+  flea = null;
 
-    spawnCentipede();
+  gridManager.generateLevel();
 
-    if (typeof SOUNDS !== 'undefined' && SOUNDS.track) {
-      SOUNDS.track.loop = true;
-      SOUNDS.track.currentTime = 0;
-      SOUNDS.track.play().catch(() => {});
-    }
+  spawnCentipede();
+
+  if (typeof SOUNDS !== 'undefined' && SOUNDS.track) {
+    SOUNDS.spider.loop = true;
+    SOUNDS.spider.currentTime = 0;
+    SOUNDS.spider.play().catch(() => { });
+  }
 
 
 }
@@ -336,9 +380,9 @@ function drawUI() {
   textSize(18);
   textAlign(CENTER, TOP);
 
-   
+
   drawRetroScore(score, 10);
-  
+
   let startX = 16;
   let lifeY = 10;
   let iconWidth = 12;
@@ -346,7 +390,7 @@ function drawUI() {
   let spacing = 16;
   for (let i = 0; i < lives; i++) {
     let currentX = startX + i * spacing;
-    
+
     image(playerSprites.idle, currentX, lifeY, iconWidth, iconHeight);
   }
 }

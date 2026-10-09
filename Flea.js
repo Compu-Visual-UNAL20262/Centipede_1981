@@ -25,7 +25,7 @@ class Flea {
   update(currentScore = 0) {
     if (!this.isActive) return;
 
-    if (currentScore >= FLEA_SPEED_THRESHOLD_SCORE) {
+    if (this.health < FLEA_HEALTH || currentScore >= FLEA_SPEED_THRESHOLD_SCORE) {
       this.speed = FLEA_FAST_SPEED;
     } else {
       this.speed = FLEA_BASE_SPEED;
