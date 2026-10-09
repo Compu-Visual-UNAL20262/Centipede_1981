@@ -246,6 +246,12 @@ function startNewGame() {
 
     spawnCentipede();
 
+    if (typeof SOUNDS !== 'undefined' && SOUNDS.track) {
+      SOUNDS.track.loop = true;
+      SOUNDS.track.currentTime = 0;
+      SOUNDS.track.play().catch(() => {});
+    }
+
 
 }
 
