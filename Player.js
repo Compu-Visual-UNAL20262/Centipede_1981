@@ -330,6 +330,16 @@ class Player {
     this.shootCooldown = 20;
     this.burstBulletsRemaining = 0;
     this.invulnerableTimer = 60; // 1 second invulnerability on respawn
+    
+    if (typeof spawnCentipede === 'function') {
+      spawnCentipede();
+    }
+    if (typeof bullets !== 'undefined') {
+      bullets = [];
+    }
+    
+  
+  
   }
 
   /**
