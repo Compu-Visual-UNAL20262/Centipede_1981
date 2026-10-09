@@ -200,8 +200,6 @@ function checkCentipedeCollision(){
       let sameRow = centipede.segments[0].row === otherCentipede.segments[0].row;
 
       if (sameCol && sameRow && centipede !== otherCentipede) {
-        console.log("Checking collision between centipedes", c, "and", s, "SameCol:", sameCol, "SameRow:", sameRow);
-
         centipedes[c].segments[0].moveDownRow();
       }
     }
@@ -237,6 +235,9 @@ function checkCollisions() {
         const segment = centipede.segments[s];
 
         if (dist(b.x, b.y, segment.x, segment.y) < COLLISION_RADIUS) {
+          mushrooms.push(
+              new Mushroom(segment.col, segment.row)
+            );
           b.isActive = false;
           score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
 
@@ -249,10 +250,6 @@ function checkCollisions() {
           if (newCentipede !== null) {
             centipedes.push(newCentipede);
           }
-
-          mushrooms.push(
-              new Mushroom(segment.col, segment.row)
-            );
 
           if (centipede.isDead()) {
             centipedes.splice(c, 1);
@@ -267,7 +264,7 @@ function checkCollisions() {
       }
     }
     if (spider) {
-      if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS) {
+      if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS_SPIDER) {
         b.isActive = false;
         score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
         spider = null;
@@ -293,8 +290,6 @@ function startNewGame() {
     gridManager.generateLevel();
 
     spawnCentipede();
-
-
 }
 
 function drawUI() {

@@ -20,6 +20,9 @@ const PLAYER_SPEED = 4;
 const SHOOT_COOLDOWN_FRAMES = 10;
 const BULLET_SPEED = -8;
 
+// Mushroom
+const MUSHROOM_PROBABILITY = 0.05;
+
 // ─── Player Sprite Coordinates (source rectangles in sprite sheet) ───
 const PLAYER_SPRITES = {
   idle:     { x: 4,  y: 7,  w: 7, h: 10 },
@@ -92,10 +95,10 @@ const CENTIPEDE_LENGTH = 12;
 const INITIAL_X_CENTIPEDE = 5;
 const INITIAL_Y_CENTIPEDE = 2;
 const MIN_CENTIPEDE_DELAY = 3;
-const CENTIPEDE_INITIAL_DELAY = 7
+const CENTIPEDE_INITIAL_DELAY = 7;
 
 // Spider
 const SPIDER_SPEED = 2;
 const SPIDER_SPAWN_CHANCE = 0.003;
 const MIN_SPIDER_MOVE_DELAY = 30;
-const COLLISION_RADIUS_SPIDER = COLLISION_RADIUS * 1.5;
+const COLLISION_RADIUS_SPIDER = COLLISION_RADIUS * 2;

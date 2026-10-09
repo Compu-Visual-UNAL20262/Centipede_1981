@@ -11,7 +11,7 @@ class Spider {
         this.time = 0;
         this.moveDelay = random(Array(6).fill(0).map((_, i) => MIN_SPIDER_MOVE_DELAY*(i+1)));
         this.animationCounter = 0;
-        this.animationDelay = 10;
+        this.animationDelay = 5;
 
         this.sprites = [
             sprites.spiderA,
@@ -39,6 +39,7 @@ class Spider {
         this.animationCounter++;
         if (this.animationCounter >= this.animationDelay) {
             this.animationCounter = 0;
+            this.changeSprite();
         }
     }
 
@@ -77,7 +78,5 @@ class Spider {
         if (this.spriteIndex >= this.sprites.length) {
         this.spriteIndex = 0;
         }
-
-        this.sprite = this.sprites[this.spriteIndex];
     }
 }
