@@ -42,6 +42,12 @@ const CENTIPEDE_SPRITES = {
   centipedeBodyD: { x:106, y: 36, w: 7, h:8},
 }
 
+const SPIDER_SPRITES = {
+  spiderA: {x:0, y:54, w:15, h:8},
+  spiderB: {x:34, y:54, w:15, h:8},
+  spiderC: {x:68, y:54, w:15, h:8},
+}
+
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
   { x: 170, y: 0   }, // Nivel 2
@@ -73,3 +79,6 @@ const CENTIPEDE_LENGTH = 12;
 const INITIAL_X_CENTIPEDE = 5;
 const INITIAL_Y_CENTIPEDE = 2;
 const MIN_CENTIPEDE_SPEED = 3;
+
+// Spider
+SPIDER_SPEED = 2;

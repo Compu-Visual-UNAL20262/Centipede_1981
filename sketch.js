@@ -15,6 +15,7 @@ let playerSprites;
 let bulletSprite;
 let mushroomSprites;
 let centipedeSprites;
+let spiderSprites;
 
 function updateLevelSprites() {
   let paletteIndex = (currentLevel - 1) % PALETTE_OFFSETS.length;
@@ -42,6 +43,12 @@ function updateLevelSprites() {
     centipedeBodyD: spriteSheet.get(p.x + CENTIPEDE_SPRITES.centipedeBodyD.x, p.y + CENTIPEDE_SPRITES.centipedeBodyD.y, CENTIPEDE_SPRITES.centipedeBodyD.w, CENTIPEDE_SPRITES.centipedeBodyD.h),
   }
 
+  spiderSprites ={
+    spiderA: spriteSheet.get(p.x + SPIDER_SPRITES.spiderA.x, p.y + SPIDER_SPRITES.spiderA.y, SPIDER_SPRITES.spiderA.w, SPIDER_SPRITES.spiderA.h),
+    spiderB: spriteSheet.get(p.x + SPIDER_SPRITES.spiderB.x, p.y + SPIDER_SPRITES.spiderB.y, SPIDER_SPRITES.spiderB.w, SPIDER_SPRITES.spiderB.h),
+    spiderC: spriteSheet.get(p.x + SPIDER_SPRITES.spiderC.x, p.y + SPIDER_SPRITES.spiderC.y, SPIDER_SPRITES.spiderC.w, SPIDER_SPRITES.spiderC.h),
+  }
+
   if (player) {
     player.sprites = playerSprites;
   }
@@ -57,6 +64,7 @@ async function setup() {
     centipedeSegments = [];
     bullets = [];
     centipedes = [];
+    spider = null;
     
     gameState = 'START';
 
@@ -87,6 +95,16 @@ function draw() {
       for (let c of centipedes) {
         c.update();
         c.render();
+      }
+
+      if (spider) {
+        spider.update();
+        spider.render();
+        if (spider.isOutOfBoundX()) {
+          spider = null;
+        }
+      } else {
+        spider = new Spider(spiderSprites);
       }
 
       if (keyIsDown(' ')) {
