@@ -267,12 +267,42 @@ class Player {
 
   /**
    * Starts the player death animation and disables controls.
+   * Plays the death sound (Dead.wav) upon losing a life / enemy collision.
    */
   die() {
     if (this.isDying) return;
     this.isDying = true;
     this.deathFrameIndex = 0;
     this.deathTimer = 0;
+    this.playDeathSound();
+  }
+
+  /**
+   * Plays the player death sound effect (Dead.wav).
+   */
+  playDeathSound() {
+    if (typeof playSound === 'function' && typeof SOUNDS !== 'undefined') {
+      playSound(SOUNDS.dead);
+    } else if (typeof SOUNDS !== 'undefined' && SOUNDS.dead) {
+      try {
+        SOUNDS.dead.currentTime = 0;
+        SOUNDS.dead.play().catch(() => {});
+      } catch (e) {}
+    }
+  }
+
+  /**
+   * Plays the bullet shoot sound effect (Shoot.wav).
+   */
+  playShootSound() {
+    if (typeof playSound === 'function' && typeof SOUNDS !== 'undefined') {
+      playSound(SOUNDS.shoot);
+    } else if (typeof SOUNDS !== 'undefined' && SOUNDS.shoot) {
+      try {
+        SOUNDS.shoot.currentTime = 0;
+        SOUNDS.shoot.play().catch(() => {});
+      } catch (e) {}
+    }
   }
 
   /**

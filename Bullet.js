@@ -15,6 +15,25 @@ class Bullet {
     this.speed = BULLET_SPEED;
     this.isActive = true;
     this.sprite = sprite;
+
+    this.playShootSound();
+  }
+
+  /**
+   * Plays the bullet shoot sound effect (Shoot.wav).
+   */
+  playShootSound() {
+    if (typeof playSound === 'function' && typeof SOUNDS !== 'undefined') {
+      playSound(SOUNDS.shoot);
+    } else if (typeof SOUNDS !== 'undefined' && SOUNDS.shoot) {
+      try {
+        const clone = SOUNDS.shoot.cloneNode();
+        clone.play().catch(() => {});
+      } catch (e) {
+        SOUNDS.shoot.currentTime = 0;
+        SOUNDS.shoot.play().catch(() => {});
+      }
+    }
   }
 
   /**

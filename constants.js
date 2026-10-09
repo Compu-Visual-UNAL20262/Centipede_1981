@@ -86,3 +86,49 @@ const CENTIPEDE_LENGTH = 12;
 const INITIAL_X_CENTIPEDE = 5;
 const INITIAL_Y_CENTIPEDE = 2;
 const MIN_CENTIPEDE_SPEED = 3;
+
+// ─── Sound Settings & Audio Assets ───────────────────────────────────
+const SOUND_PATHS = {
+  dead: 'assets/Dead.wav',
+  shoot: 'assets/Shoot.wav',
+  spider: 'assets/Spider.wav',
+  track: 'assets/Track.wav'
+};
+
+const SOUNDS = {
+  dead: typeof Audio !== 'undefined' ? new Audio(SOUND_PATHS.dead) : null,
+  shoot: typeof Audio !== 'undefined' ? new Audio(SOUND_PATHS.shoot) : null,
+  spider: typeof Audio !== 'undefined' ? new Audio(SOUND_PATHS.spider) : null,
+  track: typeof Audio !== 'undefined' ? new Audio(SOUND_PATHS.track) : null
+};
+
+/**
+ * Utility function to play an audio effect safely with support for overlaps.
+ * Uses cloneNode() to allow overlapping sound instances (e.g., rapid fire).
+ * Catches and ignores autoplay restrictions gracefully.
+ * @param {HTMLAudioElement|null} sound
+ * @returns {HTMLAudioElement|null}
+ */
+function playSound(sound) {
+  if (!sound) return null;
+  try {
+    if (typeof sound.cloneNode === 'function') {
+      const clone = sound.cloneNode();
+      const playPromise = clone.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
+      return clone;
+    } else if (typeof sound.play === 'function') {
+      sound.currentTime = 0;
+      const playPromise = sound.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
+      return sound;
+    }
+  } catch (err) {
+    // Gracefully ignore audio errors (e.g. headless/Node testing or browser policies)
+  }
+  return null;
+}
