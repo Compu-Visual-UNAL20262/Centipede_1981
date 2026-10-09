@@ -64,6 +64,12 @@ const SPIDER_SPRITES = {
   spiderC: {x:68, y:54, w:15, h:8},
 }
 
+const EXPLOSION_SPRITES = {
+  explosionA: {x:72, y:63, w:8, h:8},
+  explosionB: {x:106, y:63, w:8, h:8},
+  explosionC: {x:140, y:63, w:8, h:8},
+}
+
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
   { x: 170, y: 0   }, // Nivel 2

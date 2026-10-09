@@ -6,6 +6,7 @@ let currentLevel;
 let mushrooms;
 let centipedes;
 let bullets;
+let explosions;
 
 let player;
 let gridManager;
@@ -49,6 +50,13 @@ function updateLevelSprites() {
     spiderC: spriteSheet.get(p.x + SPIDER_SPRITES.spiderC.x, p.y + SPIDER_SPRITES.spiderC.y, SPIDER_SPRITES.spiderC.w, SPIDER_SPRITES.spiderC.h),
   }
 
+  explosionSprites = {
+    explosionA: spriteSheet.get(p.x + EXPLOSION_SPRITES.explosionA.x, p.y + EXPLOSION_SPRITES.explosionA.y, EXPLOSION_SPRITES.explosionA.w, EXPLOSION_SPRITES.explosionA.h),
+    explosionB: spriteSheet.get(p.x + EXPLOSION_SPRITES.explosionB.x, p.y + EXPLOSION_SPRITES.explosionB.y, EXPLOSION_SPRITES.explosionB.w, EXPLOSION_SPRITES.explosionB.h),
+    explosionC: spriteSheet.get(p.x + EXPLOSION_SPRITES.explosionC.x, p.y + EXPLOSION_SPRITES.explosionC.y, EXPLOSION_SPRITES.explosionC.w, EXPLOSION_SPRITES.explosionC.h),
+
+  }
+
   if (player) {
     player.sprites = playerSprites;
   }
@@ -64,6 +72,7 @@ async function setup() {
     centipedeSegments = [];
     bullets = [];
     centipedes = [];
+    explosions = [];
     spider = null;
     
     gameState = 'START';
@@ -124,6 +133,15 @@ function draw() {
             
             if (!b.isActive) {
             bullets.splice(i, 1);
+            }
+        }
+
+        for (let i = explosions.length - 1; i >= 0; i--) {
+            const explosion = explosions[i];
+            explosion.render();
+
+            if (explosion.finished) {
+                explosions.splice(i, 1);
             }
         }
 
@@ -235,9 +253,8 @@ function checkCollisions() {
         const segment = centipede.segments[s];
 
         if (dist(b.x, b.y, segment.x, segment.y) < COLLISION_RADIUS) {
-          mushrooms.push(
-              new Mushroom(segment.col, segment.row)
-            );
+          explosions.push(new Explosion(segment.x, segment.y, explosionSprites));
+          mushrooms.push(new Mushroom(segment.col, segment.row));
           b.isActive = false;
           score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
 
@@ -265,6 +282,7 @@ function checkCollisions() {
     }
     if (spider) {
       if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS_SPIDER) {
+        explosions.push(new Explosion(spider.x, spider.y, explosionSprites));
         b.isActive = false;
         score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
         spider = null;
