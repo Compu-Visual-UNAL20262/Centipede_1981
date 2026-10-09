@@ -5,7 +5,9 @@
   <p><sub><em>Original Atari Centipede (1981) Arcade Sideart / Marquee Illustration with animated CRT scanlines & laser sweep effect. Sourced via <a href="https://www.reddit.com/r/1980s/comments/1oz3jdu/centipede_1981/">r/1980s</a> (original Atari archival art; poster is not claimed as author).</em></sub></p>
 </div>
 
-A faithful and modular recreation of the legendary 1981 Atari arcade classic **Centipede**, developed using JavaScript and the [p5.js](https://p5js.org/) creative coding library.
+A modular remake inspired by the legendary 1981 Atari arcade classic **Centipede**, developed using JavaScript and the [p5.js](https://p5js.org/) creative coding library. 
+
+> 📌 **Note:** As a modern custom interpretation, this project is inspired by the original arcade game and deliberately adapts certain mechanics, visual assets, and audio choices rather than attempting a 1:1 pixel-exact hardware replica.
 
 ---
 
@@ -43,6 +45,7 @@ Alongside the centipede, players contend with hazardous side-spiders, falling fl
 - **The Centipede:** Moves horizontally across the grid and steps downward upon colliding with screen edges or mushrooms. Destroying any body segment instantly transforms the trailing segment into an independent new head!
 - **The Flea:** Falls vertically when mushroom density drops, leaving new mushrooms in its wake.
 - **The Spider:** Bounces erratically inside the player territory, eating mushrooms and providing high-risk target points.
+- **Extra Life Reward:** Players earn 1 extra life for every **10,000 points** accumulated during gameplay.
 
 ---
 
@@ -150,6 +153,14 @@ To recreate the authentic arcade feel, all visual gameplay assets were consolida
 
 ---
 
+## 🛠️ Technical Debt & Known Scope Limitations
+
+Due to development timeframe constraints and sprint scope prioritization, the following original 1981 arcade mechanics were deferred:
+- **The Scorpion Entity:** The poisonous scorpion that crosses horizontally in upper rows to infect mushrooms was omitted.
+- **Poisoned Mushrooms:** Poisoned mushroom states (which cause centipedes to plunge straight down to the player territory upon contact) were not implemented in this phase.
+
+---
+
 ## 🚀 Running the Project Locally
 
 Because modern web browsers enforce **CORS (Cross-Origin Resource Sharing)** restrictions on local audio and image files (`file:///`), the project must be hosted through a local web server:
@@ -160,3 +171,13 @@ Because modern web browsers enforce **CORS (Cross-Origin Resource Sharing)** res
    - **Node.js:** Run `npx serve .` or `npx http-server`.
    - **Python:** Run `python -m http.server 8000` and open `http://localhost:8000`.
 3. Enjoy defending the garden!
+
+---
+
+## 🤖 Artificial Intelligence Disclosure & Acknowledgments
+
+Artificial Intelligence tools (specifically **Google Antigravity / Gemini**) were leveraged as pair-programming assistants throughout the development lifecycle of this project. AI assistance was utilized for:
+- **Documentation & Structuring:** Writing, organizing, and formatting this comprehensive `README.md` and associated visual documentation.
+- **Codebase Comprehension & Refactoring:** Analyzing p5.js logic flows, verifying class interfaces, and resolving state integration contracts across team modules.
+- **Problem Solving & Troubleshooting:** Diagnosing coordinate bounds, frame rate timings, and cross-browser audio decoding constraints.
+- **Sprite Sheet & Media Processing:** Learning sprite sheet parsing strategies, automating bounding-box extractions, and generating pixel-perfect control animation GIFs.
