@@ -9,7 +9,7 @@ class Spider {
         this.velY = random([-1, 1]) * SPIDER_SPEED;
 
         this.time = 0;
-        this.moveDelay = random(Array(6).fill(0).map((_, i) => 20+i*20));
+        this.moveDelay = random(Array(6).fill(0).map((_, i) => MIN_SPIDER_MOVE_DELAY*(i+1)));
         this.animationCounter = 0;
         this.animationDelay = 10;
 
@@ -50,7 +50,7 @@ class Spider {
         console.log("Despues", this.velX)
 
         this.time = 0;
-        this.moveDelay = random(Array(6).fill(0).map((_, i) => 20+i*20));
+        this.moveDelay = random(Array(6).fill(0).map((_, i) => MIN_SPIDER_MOVE_DELAY*(i+1)));
     }
     
     isOutOfBoundY(){
@@ -58,7 +58,7 @@ class Spider {
     }
 
     isOutOfBoundX(){
-        return this.x < 0|| this.x > CANVAS_WIDTH;
+        return this.x < -10|| this.x > CANVAS_WIDTH+10;
     }
 
     render(){

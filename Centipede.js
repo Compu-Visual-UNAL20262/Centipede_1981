@@ -1,5 +1,5 @@
 class Centipede {
-  constructor(segments, moveDelay = 10) {
+  constructor(segments, moveDelay = CENTIPEDE_INITIAL_DELAY) {
     this.segments = segments;
 
     this.moveDelay = moveDelay;
@@ -83,7 +83,7 @@ class Centipede {
   }
 
   increaseSpeed(amount = 0.01) {
-    this.moveDelay = max(MIN_CENTIPEDE_SPEED, this.moveDelay - amount);
+    this.moveDelay = max(MIN_CENTIPEDE_DELAY, this.moveDelay - amount);
   }
 
   hitSegment(index) {

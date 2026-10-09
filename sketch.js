@@ -104,7 +104,9 @@ function draw() {
           spider = null;
         }
       } else {
-        spider = new Spider(spiderSprites);
+        if (random() < SPIDER_SPAWN_CHANCE) {
+          spider = new Spider(spiderSprites);
+        }
       }
 
       if (keyIsDown(' ')) {
@@ -219,6 +221,24 @@ function checkCollisions() {
 
       if (!b.isActive) {
         break;
+      }
+    }
+
+    if (spider) {
+      if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS) {
+        b.isActive = false;
+        score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
+        spider = null; 
+        break;
+      }
+
+      for (let m = mushrooms.length - 1; m >= 0; m--) {
+        let mushroom = mushrooms[m];
+        let mCenterX = mushroom.x + TILE_SIZE / 2;
+        let mCenterY = mushroom.y + TILE_SIZE / 2;
+        if (dist(spider.x, spider.y, mCenterX, mCenterY) < COLLISION_RADIUS) {
+          mushrooms.splice(m, 1);
+        }
       }
     }
   }
