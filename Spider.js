@@ -32,7 +32,6 @@ class Spider {
         }
 
         this.time++;
-        console.log("Time:", this.time, "MoveDelay:", this.moveDelay)
         if (this.time >= this.moveDelay) {
             this.changeDirection();
         }
@@ -44,10 +43,8 @@ class Spider {
     }
 
     changeDirection(){
-        console.log("Antes", this.velX)
         this.velY = random([-1, 1]) * SPIDER_SPEED;
         this.velX = random([0, this.origin * SPIDER_SPEED, this.origin * SPIDER_SPEED, this.origin * SPIDER_SPEED]);
-        console.log("Despues", this.velX)
 
         this.time = 0;
         this.moveDelay = random(Array(6).fill(0).map((_, i) => MIN_SPIDER_MOVE_DELAY*(i+1)));

@@ -100,6 +100,7 @@ function draw() {
       if (spider) {
         spider.update();
         spider.render();
+        checkSpiderCollision();
         if (spider.isOutOfBoundX()) {
           spider = null;
         }
@@ -166,6 +167,18 @@ function levelUp() {
   updateLevelSprites();
 }
 
+function checkSpiderCollision() {
+    for (let m = mushrooms.length - 1; m >= 0; m--) {
+      let mushroom = mushrooms[m];
+      let mCenterX = mushroom.x + TILE_SIZE / 2;
+      let mCenterY = mushroom.y + TILE_SIZE / 2;
+      console.log("Distancia:", dist(spider.x, spider.y, mCenterX, mCenterY), "Radio de colision:", COLLISION_RADIUS_SPIDER)
+      if (dist(spider.x, spider.y, mCenterX, mCenterY) < COLLISION_RADIUS_SPIDER) {
+        mushrooms.splice(m, 1);
+      }
+    }
+}
+
 function checkCollisions() {
   for (let i = bullets.length - 1; i >= 0; i--) {
     let b = bullets[i];
@@ -223,22 +236,11 @@ function checkCollisions() {
         break;
       }
     }
-
     if (spider) {
       if (dist(b.x, b.y, spider.x, spider.y) < COLLISION_RADIUS) {
         b.isActive = false;
         score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
-        spider = null; 
-        break;
-      }
-
-      for (let m = mushrooms.length - 1; m >= 0; m--) {
-        let mushroom = mushrooms[m];
-        let mCenterX = mushroom.x + TILE_SIZE / 2;
-        let mCenterY = mushroom.y + TILE_SIZE / 2;
-        if (dist(spider.x, spider.y, mCenterX, mCenterY) < COLLISION_RADIUS) {
-          mushrooms.splice(m, 1);
-        }
+        spider = null;
       }
     }
   }
