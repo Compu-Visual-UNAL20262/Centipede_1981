@@ -53,7 +53,23 @@ const CENTIPEDE_SPRITES = {
   centipedeBodyB: { x:38, y: 36, w: 7, h:8},
   centipedeBodyC: { x:72, y: 36, w: 7, h:8},
   centipedeBodyD: { x:106, y: 36, w: 7, h:8},
-}
+};
+
+// ─── Flea Sprite Coordinates & Settings ──────────────────────────────
+const FLEA_SPRITES = [
+  { x: 3,  y: 63, w: 9, h: 8 },
+  { x: 20, y: 63, w: 9, h: 8 },
+  { x: 37, y: 63, w: 9, h: 8 },
+  { x: 54, y: 63, w: 9, h: 8 }
+];
+
+const FLEA_BASE_SPEED = 2;
+const FLEA_FAST_SPEED = 4;
+const FLEA_SPEED_THRESHOLD_SCORE = 60000;
+const FLEA_HEALTH = 2;
+const FLEA_ANIMATION_DELAY = 6;
+const FLEA_POINTS = 200;
+const FLEA_DROP_MUSHROOM_CHANCE = 0.25;
 
 const PALETTE_OFFSETS = [
   { x: 0,   y: 0   }, // Nivel 1
