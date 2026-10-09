@@ -367,12 +367,17 @@ class Player {
   }
 
   /**
-   * Scans global mushrooms and centipedeSegments arrays to find the closest entity
-   * located directly above the player in the same column (X range).
+   * Scans global mushrooms and active centipede segments to find the closest entity
+   * located directly in the bullet's vertical firing path (same column/trajectory).
+   * Prevents entities in adjacent columns from triggering rapid bursts.
    * @returns {number} The vertical distance (Y) to the closest entity above, or Infinity if none.
    */
   getClosestEntityDistanceY() {
     let minDistance = Infinity;
+
+    const bulletWidth = PLAYER_SPRITES.bullet.w * SPRITE_SCALE;
+    const bulletSpawnX = this.x + Math.floor(this.width / 2) - Math.floor(bulletWidth / 2);
+    const bulletCenterX = bulletSpawnX + bulletWidth / 2;
 
     const scanEntities = (entityList) => {
       if (!entityList || !Array.isArray(entityList)) return;
@@ -381,18 +386,23 @@ class Player {
         const entity = entityList[i];
         if (!entity) continue;
         if (entity.isActive === false || entity.isDestroyed === true || entity.alive === false) continue;
+        if (typeof entity.health === 'number' && entity.health <= 0) continue;
 
         const entX = typeof entity.getX === 'function' ? entity.getX() : entity.x;
         const entY = typeof entity.getY === 'function' ? entity.getY() : entity.y;
         if (typeof entX !== 'number' || typeof entY !== 'number') continue;
 
         const entWidth = typeof entity.getWidth === 'function' ? entity.getWidth() : (entity.width || entity.w || TILE_SIZE);
+        const entHeight = typeof entity.getHeight === 'function' ? entity.getHeight() : (entity.height || entity.h || TILE_SIZE);
 
-        const inSameColumn = (entX < this.x + this.width) && (entX + entWidth > this.x);
-        const isAbove = entY < this.y;
+        const entCenterX = entX + entWidth / 2;
 
-        if (inSameColumn && isAbove) {
-          const distanceY = this.y - entY;
+        // The bullet travels along bulletCenterX; only objects directly in its path collide
+        const inBulletPath = Math.abs(bulletCenterX - entCenterX) < COLLISION_RADIUS;
+        const isAbove = (entY + entHeight / 2) < this.y;
+
+        if (inBulletPath && isAbove) {
+          const distanceY = Math.max(0, this.y - (entY + entHeight));
           if (distanceY < minDistance) {
             minDistance = distanceY;
           }
@@ -403,7 +413,15 @@ class Player {
     if (typeof mushrooms !== 'undefined') {
       scanEntities(mushrooms);
     }
-    if (typeof centipedeSegments !== 'undefined') {
+    if (typeof centipedes !== 'undefined' && Array.isArray(centipedes)) {
+      for (let i = 0; i < centipedes.length; i++) {
+        const c = centipedes[i];
+        if (c && Array.isArray(c.segments)) {
+          scanEntities(c.segments);
+        }
+      }
+    }
+    if (typeof centipedeSegments !== 'undefined' && Array.isArray(centipedeSegments) && centipedeSegments.length > 0) {
       scanEntities(centipedeSegments);
     }
 
@@ -436,6 +454,7 @@ class Player {
   /**
    * Fires a bullet if the cooldown has expired.
    * Uses proximity scanning to dynamically adjust cooldowns and fire bursts.
+   * Only fires in rapid burst when a target is directly ahead in the firing line.
    * Centered horizontally relative to the player's current width.
    * @param {p5.Image} bulletSprite - Pre-extracted sprite image for the bullet.
    */
@@ -452,20 +471,21 @@ class Player {
       const closestDistance = this.getClosestEntityDistanceY();
       const hasTargetAbove = Number.isFinite(closestDistance);
 
-      if (this.burstBulletsRemaining > 0) {
+      if (!hasTargetAbove) {
+        // No target directly ahead: fire single shots at normal cadence
+        this.burstBulletsRemaining = 0;
+        this.shootCooldown = NORMAL_SHOOT_COOLDOWN;
+      } else if (this.burstBulletsRemaining > 0) {
         this.burstBulletsRemaining--;
         if (this.burstBulletsRemaining === 0) {
           this.shootCooldown = this.calculateDynamicCooldown(closestDistance);
         } else {
           this.shootCooldown = RAPID_SHOOT_COOLDOWN;
         }
-      } else if (hasTargetAbove) {
+      } else {
         this.burstBulletsRemaining = BURST_BULLET_COUNT;
         this.burstBulletsRemaining--;
         this.shootCooldown = RAPID_SHOOT_COOLDOWN;
-      } else {
-        this.burstBulletsRemaining = 0;
-        this.shootCooldown = NORMAL_SHOOT_COOLDOWN;
       }
     }
   }
