@@ -293,6 +293,11 @@ class Player {
         if (typeof gameState !== 'undefined') {
           gameState = 'ENDGAME';
         }
+
+        if (typeof SOUNDS !== 'undefined' && SOUNDS.track) {
+          SOUNDS.track.pause();
+        }
+
         this.isDying = false;
         return;
       }
