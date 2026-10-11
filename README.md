@@ -19,16 +19,13 @@ Originally released by Atari in 1981, **Centipede** is a seminal vertically orie
 Alongside the centipede, players contend with hazardous side-spiders, falling fleas that replenish the mushroom garden, and an evolving color palette with escalating difficulty as levels progress.
 
 ### Visual Showcase & Gameplay Previews
-<!-- Placeholder media slots: Replace with screenshots or recorded gameplay GIFs -->
 | Start Screen & Audio Welcome | Active Gameplay & Dynamic Field |
 | :---: | :---: |
-| ![Start Screen Placeholder](assets/screenshots/start_screen.png)<br><sub>*Introductory screen with welcome theme*</sub> | ![Gameplay Preview Placeholder](assets/screenshots/gameplay.gif)<br><sub>*Centipede splitting and mushroom clearing*</sub> |
+| ![Start Screen Preview](assets/start_screen.gif)<br><sub>*Introductory screen with high score table and welcome theme*</sub> | ![Active Gameplay Preview](assets/gameplay.gif)<br><sub>*Centipede splitting, projectile firing and mushroom clearing*</sub> |
 
-| Flea & Spider Encounters | Game Over & Scoring HUD |
+| Flea & Spider Encounters (Scoring) | Player Elimination & Life Loss |
 | :---: | :---: |
-| ![Enemy Encounters Placeholder](assets/screenshots/enemies.png)<br><sub>*Flea dropping mushrooms and spider bouncing*</sub> | ![Game Over Placeholder](assets/screenshots/game_over.png)<br><sub>*Score display and state transition*</sub> |
-
-> 💡 **Tip for presentation:** Adding a lightweight 5–10 second animated `.gif` of active gameplay in the table above dramatically boosts engagement and visually proves game mechanics to reviewers and recruiters.
+| ![Flea and Spider Encounters Preview](assets/enemies.gif)<br><sub>*Flea dropping mushrooms, spider defeat and floating score points*</sub> | ![Player Elimination Preview](assets/player_death.gif)<br><sub>*Collision with spider, ship destruction and life loss HUD update*</sub> |
 
 ---
 
@@ -37,15 +34,25 @@ Alongside the centipede, players contend with hazardous side-spiders, falling fl
 ### Controls
 | Input / Controls | Action |
 | :---: | :--- |
-| <img src="assets/controls_arrows.gif" alt="Arrow Controls" height="60" /><br><sub>**Arrow Keys / Movement**</sub> | Move the player ship across the designated player boundary |
-| <img src="assets/controls_space.gif" alt="Space Fire" height="40" /><br><sub>**Spacebar**</sub> | Fire laser bullets upward |
+| <img src="assets/controls_arrows.gif" alt="Arrow Controls" height="60" /><br><sub>**Arrow Keys / Movement**</sub> | Move the player ship across the designated lower player area (`PLAYER_AREA_Y`) |
+| <img src="assets/controls_space.gif" alt="Space Fire" height="40" /><br><sub>**Spacebar**</sub> | Fire laser bullets upward with rate-of-fire cooldown |
+| **Enter** | Start game from title screen / Restart after Game Over |
 
-### Core Mechanics
-- **The Mushroom Garden:** Mushrooms take up to 4 hits to destroy. They act as barriers that redirect enemies.
-- **The Centipede:** Moves horizontally across the grid and steps downward upon colliding with screen edges or mushrooms. Destroying any body segment instantly transforms the trailing segment into an independent new head!
-- **The Flea:** Falls vertically when mushroom density drops, leaving new mushrooms in its wake.
-- **The Spider:** Bounces erratically inside the player territory, eating mushrooms and providing high-risk target points.
-- **Extra Life Reward:** Players earn 1 extra life for every **10,000 points** accumulated during gameplay.
+### Core Mechanics & Scoring System
+- **The Mushroom Garden:** Mushrooms require 4 hits to destroy, updating damage frames on each strike (+1 point on destruction) and acting as barriers that redirect enemies.
+- **The Centipede:** Moves horizontally across the grid and steps downward upon colliding with screen edges or mushrooms. Destroying any body segment transforms the trailing segment into an independent new head (+5 pts body, +20 pts head).
+- **The Flea:** Falls vertically when mushroom density drops with progressive difficulty cooldowns, depositing mushrooms in empty tiles (+200 pts when eliminated).
+- **The Spider:** Bounces erratically inside the player territory eating mushrooms, with arcade-accurate proximity scoring:
+  - **900 points:** Close proximity (`<= 60px`)
+  - **600 points:** Medium distance (`<= 140px`)
+  - **300 points:** Far distance
+- **Floating Score Feedback:** Pop-up retro point text rendered in the level's active palette when defeating enemies.
+- **Extra Life Reward:** Players earn 1 extra life for every **12,000 points** accumulated during gameplay (`BONUS_LIFE_SCORE`).
+
+<div align="center">
+  <img src="assets/table_characters.gif" alt="Centipede Arcade Character Scoring Table" width="340" />
+  <p><sub><em>Figure: Arcade character breakdown and scoring point values. Source: <a href="https://www.retrogamedeconstructionzone.com/2020/08/the-characters-of-centipede.html?m=1">Retro Game Deconstruction Zone – The Characters of Centipede</a>.</em></sub></p>
+</div>
 
 ---
 
@@ -55,7 +62,7 @@ The project was engineered with a modular, contract-based architecture where eac
 
 | Developer | Role | Key Contributions |
 | :--- | :--- | :--- |
-| **Farid** | **Game Engine & UI** (*The Director*) | Authored [sketch.js](sketch.js). Orchestrated the central game loop (`setup` and `draw`), game state transitions (`MENU`, `PLAYING`, `GAMEOVER`), master collision resolution, palette swapping across stages, dynamic UI/HUD rendering, and audio playback hooks. |
+| **Farid** | **Game Engine & UI** (*The Director*) | Authored [sketch.js](sketch.js). Orchestrated the central game loop (`setup` and `draw`), game state transitions (`START`, `INGAME`, `ENDGAME`), master collision resolution, palette swapping across stages, dynamic UI/HUD rendering, and audio playback hooks. |
 | **Daniela** | **Environment & Grid** (*The Builder*) | Authored [GridManager.js](GridManager.js) and [Mushroom.js](Mushroom.js). Designed the grid coordinate system, procedural initial mushroom layout, multi-stage mushroom degradation (4 HP lifecycle with damage frames), and spatial query methods (`hasMushroomAt`). |
 | **Ángel** | **Player Mechanics & Extra Enemy** (*The Gunner*) | Authored [Player.js](Player.js), [Bullet.js](Bullet.js), and the added **[Flea.js](Flea.js)**. Implemented player boundary enforcement within `PLAYER_AREA_Y`, firing rate cooldowns, projectile kinematics, and designed the **Flea**—an enemy not initially planned in early drafts that was integrated to accurately replicate the arcade mechanic of dropping mushrooms vertically. |
 | **Nicolás** | **AI & Enemies** (*The Biologist*) | Authored [Centipede.js](Centipede.js), [CentipedeSegment.js](CentipedeSegment.js), and [Spider.js](Spider.js). Built the segmented pathfinding algorithms, head conversion upon mid-body destruction, edge and obstacle rebounding, and erratic multi-directional spider bouncing behaviors. |
@@ -71,7 +78,13 @@ Centipede_1981/
 │   ├── Centipede1981_banner.gif # Animated arcade marquee with CRT & laser sweep effect
 │   ├── controls_arrows.gif      # Animated movement controls showcase
 │   ├── controls_space.gif       # Animated fire control showcase
+│   ├── enemies.gif              # Flea & spider gameplay encounters with floating scores (evidence)
+│   ├── gameplay.gif             # Active centipede gameplay preview (evidence)
 │   ├── kb_light_symbols.png     # Controller & Keyboard Icons sprite sheet (by Vryell)
+│   ├── photopea_sprite_grid_mapping.gif # Sprite sheet offset mapping in Photopea
+│   ├── player_death.gif         # Player collision, destruction explosion & life loss (evidence)
+│   ├── start_screen.gif         # Start screen & welcome theme preview (evidence)
+│   ├── table_characters.gif     # Arcade character taxonomy and scoring table
 │   ├── Dead.wav           # Player elimination audio effect
 │   ├── Shoot.wav          # Laser shot audio effect
 │   ├── Spider.wav         # Ambient sound loop during spider encounters
@@ -95,9 +108,9 @@ Centipede_1981/
 ```
 
 ### Class Responsibilities Overview
-- **[sketch.js](sketch.js):** Coordinates loading of assets, instantiates global entities, evaluates bounding-box collisions, switches level palettes, and renders the HUD.
-- **[constants.js](constants.js):** Houses single-source-of-truth constants (`TILE_SIZE = 16`, `COLS = 30`, `ROWS = 40`, `PLAYER_AREA_Y`, sprite sub-rectangles, and color palettes).
-- **[Player.js](Player.js):** Tracks ship coordinates, clamps positioning to the legal lower player area, handles keyboard input, and manages weapon cooldowns.
+- **[sketch.js](sketch.js):** Coordinates loading of assets, instantiates global entities, evaluates bounding-box collisions, calculates proximity-based scoring, handles floating score feedback, switches level palettes, and renders the retro HUD.
+- **[constants.js](constants.js):** Houses single-source-of-truth constants (`TILE_SIZE = 16`, `COLS = 30`, `ROWS = 32`, `PLAYER_AREA_Y`, scoring thresholds, sprite sub-rectangles, and color palettes).
+- **[Player.js](Player.js):** Tracks ship coordinates, clamps positioning to the legal lower player area, handles keyboard input (Arrow keys), and manages weapon cooldowns.
 - **[Bullet.js](Bullet.js):** Handles linear upward movement, lifetime verification, and deactivation on collision.
 - **[Mushroom.js](Mushroom.js):** Tracks 4 hit points, updates sprite frames according to wear, and notifies the engine when destroyed.
 - **[GridManager.js](GridManager.js):** Spawns randomized mushrooms while leaving the player baseline clear, and provides `hasMushroomAt(col, row)` queries for enemy navigation.
@@ -116,8 +129,8 @@ To recreate the authentic arcade feel, all visual gameplay assets were consolida
 - **Coordinate Analysis & Slicing:** Sprites were measured and mapped using [Photopea](https://www.photopea.com/). By overlaying custom pixel grids, the exact pixel sub-rectangles `(x, y, w, h)` for every rotation, animation frame, and entity were mapped into [constants.js](constants.js).
 - **Dynamic Palette Swapping:** Using grid offsets, sprite slices update automatically based on `(currentLevel - 1) % PALETTE_OFFSETS.length`, replicating the cabinet's hardware palette swaps across waves.
 
-<!-- Placeholder for Sprite Sheet & Photopea mapping demonstration -->
-![Photopea Grid Mapping Placeholder](assets/screenshots/photopea_grid_mapping.png)
+<!-- Sprite Sheet & Photopea mapping demonstration -->
+![Photopea Sprite Grid Mapping](assets/photopea_sprite_grid_mapping.gif)
 *<sub>Figure: Analyzing sprite sheet offsets and bounding boxes with Photopea.</sub>*
 
 ### UI & Keyboard Icon Assets
@@ -125,6 +138,7 @@ To recreate the authentic arcade feel, all visual gameplay assets were consolida
 
 ### Original Arcade Artwork
 - **Centipede 1981 Cabinet Artwork (`Centipede1981_banner.gif`):** Sourced from the historical archival share on [Reddit r/1980s](https://www.reddit.com/r/1980s/comments/1oz3jdu/centipede_1981/). (Original artwork was commissioned and published by Atari Inc. in 1981; the Reddit poster is acknowledged as the discovery source, not as author of the illustration). Enhanced into an animated banner featuring vintage CRT scanline passes and a cycling arcade laser sweep effect to welcome visitors to the repository.
+- **Arcade Character Scoring Table (`table_characters.gif`):** Historical arcade character scoring breakdown and sprite taxonomy sourced from **[Retro Game Deconstruction Zone – The Characters of Centipede](https://www.retrogamedeconstructionzone.com/2020/08/the-characters-of-centipede.html?m=1)**. Demonstrates the official arcade scoring rules (Centipede body: 10, head: 100, Flea: 200, Spider: 300–900, Scorpion: 1000, Mushroom: 4).
 
 ---
 
@@ -147,6 +161,7 @@ To recreate the authentic arcade feel, all visual gameplay assets were consolida
 ## 📚 References & Research
 
 - **Entity Behaviors & Character Guidelines:** [Characters of Centipede and Behaviors](https://share.google/G2rLOMY2K6TzRpdam)
+- **Character Taxonomy & Scoring Reference:** [Retro Game Deconstruction Zone – The Characters of Centipede](https://www.retrogamedeconstructionzone.com/2020/08/the-characters-of-centipede.html?m=1)
 - **Gameplay Mechanics & Historical Verification:**
   - [Flash Museum – Centipede (Arcade emulation archive)](https://flashmuseum.net/game/centipede-z6h/)
   - [AARP Games – Atari Centipede](https://games.aarp.org/games/atari-centipede)
@@ -155,9 +170,10 @@ To recreate the authentic arcade feel, all visual gameplay assets were consolida
 
 ## 🛠️ Technical Debt & Known Scope Limitations
 
-Due to development timeframe constraints and sprint scope prioritization, the following original 1981 arcade mechanics were deferred:
+Due to development timeframe constraints and sprint scope prioritization, the following items were deferred or simplified:
 - **The Scorpion Entity:** The poisonous scorpion that crosses horizontally in upper rows to infect mushrooms was omitted.
 - **Poisoned Mushrooms:** Poisoned mushroom states (which cause centipedes to plunge straight down to the player territory upon contact) were not implemented in this phase.
+- **High Scores Persistence (Title Screen):** The High Scores leaderboard displayed on the introductory start screen (`HIGH_SCORES_TEXT` in [constants.js](constants.js)) uses fixed, hardcoded historical values (`EJD`, `DFT`, `CAD`, etc.) purely as a decorative tribute to recreate the aesthetic of the original 1981 arcade cabinet. Dynamic score persistence (e.g., via browser `localStorage`), high score updating, and player initial entry upon Game Over were not implemented.
 
 ---
 

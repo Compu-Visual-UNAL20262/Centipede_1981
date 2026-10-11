@@ -8,6 +8,8 @@ let centipedes;
 let bullets;
 let explosions;
 let flea;
+let fleaCooldown = 0;
+let floatingScores = [];
 
 let player;
 let gridManager;
@@ -79,8 +81,10 @@ async function setup() {
   bullets = [];
   centipedes = [];
   explosions = [];
+  floatingScores = [];
   spider = null;
   flea = null;
+  fleaCooldown = 0;
 
   gameState = 'START';
 
@@ -130,10 +134,20 @@ function draw() {
         flea.render();
         if (!flea.isActive) {
           flea = null;
+          fleaCooldown = FLEA_SPAWN_COOLDOWN_FRAMES;
         }
       } else {
-        if (random() < 0.005) {
-          flea = new Flea(floor(random(COLS)), fleaSprites);
+        if (fleaCooldown > 0) {
+          fleaCooldown--;
+        } else {
+          // Probabilidad reducida al inicio (nivel 1 y puntaje bajo)
+          let spawnChance = (currentLevel === 1 && score < FLEA_INITIAL_SCORE_THRESHOLD)
+            ? FLEA_SPAWN_CHANCE_INITIAL
+            : FLEA_SPAWN_CHANCE_NORMAL;
+
+          if (random() < spawnChance) {
+            flea = new Flea(floor(random(COLS)), fleaSprites);
+          }
         }
       }
 
@@ -159,6 +173,15 @@ function draw() {
 
         if (explosion.finished) {
           explosions.splice(i, 1);
+        }
+      }
+
+      for (let i = floatingScores.length - 1; i >= 0; i--) {
+        const fs = floatingScores[i];
+        drawRetroText(fs.text, Math.floor(fs.x), Math.floor(fs.y), 12);
+        fs.timer--;
+        if (fs.timer <= 0) {
+          floatingScores.splice(i, 1);
         }
       }
 
@@ -317,7 +340,7 @@ function checkCollisions() {
 
         if (m.takeDamage()) {
           mushrooms.splice(j, 1);
-          score += 1;
+          addScore(1);
         }
         break;
       }
@@ -337,10 +360,10 @@ function checkCollisions() {
           mushrooms.push(new Mushroom(segment.col, segment.row));
           b.isActive = false;
           bullets.splice(i, 1);
-          score += 5; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
+          addScore(5);
 
           if (segment.isHead) {
-            score += 15; // Tal vez matar una cabeza de bonus :p 
+            addScore(15);
           }
 
           const newCentipede = centipede.hitSegment(s);
@@ -369,7 +392,16 @@ function checkCollisions() {
         explosions.push(new Explosion(spider.x, spider.y, explosionSprites));
         b.isActive = false;
         bullets.splice(i, 1);
-        score += 10; // TODO: ESTO ES PARA CORREGIR. PONER EL PUNTAJE CORRECTO
+
+        const pts = calculateSpiderPoints(spider, player);
+        addScore(pts);
+        floatingScores.push({
+          text: String(pts),
+          x: spider.x,
+          y: spider.y,
+          timer: 35
+        });
+
         spider = null;
       }
     }
@@ -382,11 +414,18 @@ function checkCollisions() {
         b.isActive = false;
         bullets.splice(i, 1);
 
-
         if (flea.takeDamage()) {
           explosions.push(new Explosion(flea.x, flea.y, explosionSprites));
-          score += (typeof FLEA_POINTS !== 'undefined' ? FLEA_POINTS : 200);
+          const pts = (typeof FLEA_POINTS !== 'undefined' ? FLEA_POINTS : 200);
+          addScore(pts);
+          floatingScores.push({
+            text: String(pts),
+            x: flea.x,
+            y: flea.y,
+            timer: 35
+          });
           flea = null;
+          fleaCooldown = FLEA_SPAWN_COOLDOWN_FRAMES;
         }
       }
     }
@@ -395,6 +434,39 @@ function checkCollisions() {
 
   if (centipedes.length === 0) {
     levelUp();
+  }
+}
+
+function addScore(points) {
+  if (typeof points !== 'number' || points <= 0) return;
+  let prevScore = score;
+  score += points;
+
+  // Bonus de vida extra cada 12000 puntos
+  if (typeof BONUS_LIFE_SCORE !== 'undefined') {
+    let prevBonuses = Math.floor(prevScore / BONUS_LIFE_SCORE);
+    let currentBonuses = Math.floor(score / BONUS_LIFE_SCORE);
+    if (currentBonuses > prevBonuses) {
+      lives += (currentBonuses - prevBonuses);
+    }
+  }
+}
+
+function calculateSpiderPoints(sp, pl) {
+  if (!sp || !pl) return (typeof SPIDER_POINTS_FAR !== 'undefined' ? SPIDER_POINTS_FAR : 300);
+  const spCenterX = sp.x + 15;
+  const spCenterY = sp.y + 8;
+  const plCenterX = pl.x + (pl.width ? pl.width / 2 : TILE_SIZE / 2);
+  const plCenterY = pl.y + (pl.height ? pl.height / 2 : TILE_SIZE / 2);
+
+  const d = dist(spCenterX, spCenterY, plCenterX, plCenterY);
+
+  if (d <= (typeof SPIDER_DISTANCE_CLOSE !== 'undefined' ? SPIDER_DISTANCE_CLOSE : 60)) {
+    return (typeof SPIDER_POINTS_CLOSE !== 'undefined' ? SPIDER_POINTS_CLOSE : 900);
+  } else if (d <= (typeof SPIDER_DISTANCE_MEDIUM !== 'undefined' ? SPIDER_DISTANCE_MEDIUM : 140)) {
+    return (typeof SPIDER_POINTS_MEDIUM !== 'undefined' ? SPIDER_POINTS_MEDIUM : 600);
+  } else {
+    return (typeof SPIDER_POINTS_FAR !== 'undefined' ? SPIDER_POINTS_FAR : 300);
   }
 }
 
@@ -408,8 +480,12 @@ function startNewGame() {
 
   player = new Player(CANVAS_WIDTH / 2, CANVAS_HEIGHT - TILE_SIZE * 2, playerSprites);
   bullets = [];
+  explosions = [];
+  floatingScores = [];
 
+  spider = null;
   flea = null;
+  fleaCooldown = FLEA_SPAWN_COOLDOWN_FRAMES;
 
   gridManager.generateLevel();
 
@@ -420,7 +496,6 @@ function startNewGame() {
     SOUNDS.spider.currentTime = 0;
     SOUNDS.spider.play().catch(() => { });
   }
-
 
 }
 

@@ -73,6 +73,10 @@ const FLEA_HEALTH = 2;
 const FLEA_ANIMATION_DELAY = 6;
 const FLEA_POINTS = 200;
 const FLEA_DROP_MUSHROOM_CHANCE = 0.25;
+const FLEA_SPAWN_CHANCE_INITIAL = 0.0012; // Probabilidad reducida al inicio (~cada 12-14s a 60fps)
+const FLEA_SPAWN_CHANCE_NORMAL = 0.003;   // Probabilidad en juego avanzado
+const FLEA_INITIAL_SCORE_THRESHOLD = 3000; // Puntos requeridos para pasar de spawn inicial a normal
+const FLEA_SPAWN_COOLDOWN_FRAMES = 300;   // Cooldown mínimo (~5s a 60fps) entre apariciones de pulgas
 
 const SPIDER_SPRITES = {
   spiderA: {x:0, y:54, w:15, h:8},
@@ -171,6 +175,13 @@ const SPIDER_SPEED = 2;
 const SPIDER_SPAWN_CHANCE = 0.003;
 const MIN_SPIDER_MOVE_DELAY = 30;
 const COLLISION_RADIUS_SPIDER = COLLISION_RADIUS * 2;
+const SPIDER_POINTS_CLOSE = 900;
+const SPIDER_POINTS_MEDIUM = 600;
+const SPIDER_POINTS_FAR = 300;
+const SPIDER_DISTANCE_CLOSE = 60;   // Proximidad al jugador en px (~3-4 tiles)
+const SPIDER_DISTANCE_MEDIUM = 140; // Distancia media en px
+
+const BONUS_LIFE_SCORE = 12000;
 
 
 //high scores
