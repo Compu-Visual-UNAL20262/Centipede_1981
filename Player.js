@@ -83,16 +83,16 @@ class Player {
     let moveX = 0;
     let moveY = 0;
 
-    if (keyIsDown(LEFT_ARROW) || keyIsDown(65 /* A */)) {
+    if (keyIsDown(LEFT_ARROW)) {
       moveX -= this.speed;
     }
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68 /* D */)) {
+    if (keyIsDown(RIGHT_ARROW)) {
       moveX += this.speed;
     }
-    if (keyIsDown(UP_ARROW) || keyIsDown(87 /* W */)) {
+    if (keyIsDown(UP_ARROW)) {
       moveY -= this.speed;
     }
-    if (keyIsDown(DOWN_ARROW) || keyIsDown(83 /* S */)) {
+    if (keyIsDown(DOWN_ARROW)) {
       moveY += this.speed;
     }
 
