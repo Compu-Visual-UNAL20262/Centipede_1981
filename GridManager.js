@@ -8,9 +8,21 @@ class GridManager {
   generateLevel() {
     mushrooms.length = 0;
 
-    for (let row = 3; row < this.area; row++) {
+    for (let row = 3; row < this.playerAreaStartRow; row++) {
       for (let col = 0; col < COLS; col++) {
-        if (random() < MUSHROOM_PROBABILITY) {
+        if (random() < 0.05) {
+          if (!this.hasMushroomAt(col, row)) {
+            mushrooms.push(
+              new Mushroom(col, row)
+            );
+          }
+        }
+      }
+    }
+
+    for (let row = this.playerAreaStartRow; row < this.area; row++) {
+      for (let col = 0; col < COLS; col++) {
+        if (random() < 0.025) {
           if (!this.hasMushroomAt(col, row)) {
             mushrooms.push(
               new Mushroom(col, row)
@@ -31,6 +43,7 @@ class GridManager {
       }
     }
 
+    
     if (typeof gameState !== 'undefined' && (gameState === 'START' || gameState === 'ENDGAME')) {
       if (typeof hasHighScoreTextAt === 'function' && hasHighScoreTextAt(targetCol, targetRow)) {
         return true;
