@@ -40,4 +40,8 @@ class Mushroom {
 
     return this.health <= 0;
   }
+
+  getLife() {
+    return this.health;
+  }
 }
